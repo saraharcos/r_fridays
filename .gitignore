@@ -2,4 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-public/ # if using Netlify
+public/
+.DS_Store
+blogdown
