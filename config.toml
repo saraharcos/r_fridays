@@ -1,4 +1,4 @@
-baseurl = "/"
+baseurl = "https://r-fridays.rbind.io/"
 #publishDir = "docs"
 languageCode = "en-us"
 title = "R Fridays"
