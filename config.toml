@@ -1,5 +1,5 @@
 baseurl = "/"
-publishDir = "docs"
+#publishDir = "docs"
 languageCode = "en-us"
 title = "R Fridays"
 theme = "tuftesque"
