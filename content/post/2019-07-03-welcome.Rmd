@@ -49,3 +49,4 @@ _The readings are suggested starting points if you are new to R or statistics in
 # Wrap-Up
 
 That's pretty much it. If any of the above was confusing to you please don't hesitate to email [me](https://saraharcos.github.io/contact.html) or ping me on [twitter](https://www.twitter.com/sarah_arcos).
+
