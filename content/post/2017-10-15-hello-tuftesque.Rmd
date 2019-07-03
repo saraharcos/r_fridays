@@ -1,28 +1,28 @@
 ---
-title: Hello R Fridays
+title: Welcome to R Fridays!
 author: ''
 date: '2019-07-02'
 slug: hello-tuftesque
 categories: []
 tags: []
-excerpt: "A first post on the R Fridays blog"
+excerpt: "Start here if you are new to R Fridays"
 ---
 
-_This is an abridged version of the blogpost [Introducing The Tuftesque Blogdown Theme](http://livefreeordichotomize.com/2017/07/13/introducing-the-tuftesque-blogdown-theme/) on [livefreeordichotomize.com](livefreeordichotomize.com)._
+_The readings below are suggested starting points if you are new to R or statistics in R. Feel free to skip if it would be review for you. _
 
-# Customizing
+# Getting Started
 
-It would be pretty lame if that was it, wouldn't it? Fear not, you can tinker with it to make it your own. 
+Welcome to R Fridays! To start, make sure that you have R and RStudio installed on your machine. 
 
-## Side Notes: 
+## R: 
 
-We all know why you're here: the sidenotes. This is rather easy. Just make sure you have the `tufte` package installed and then, in an inline r chunk, wherever you want to put a side note call the following. 
+To check if R is installed on your machine, open up a command line (terminal) window and type 
 
 ```
-tufte::margin_note("This is a margin note")
+R --version
 ```
 
-The above produces the following: `r tufte::margin_note("This is a margin note")`
+The above should produce the following: `command R --version`
 
 You can place just about anything in this that you would normally put in markdown so go crazy. 
 
