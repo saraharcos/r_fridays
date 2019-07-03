@@ -86,7 +86,7 @@ Again, go into your `config.toml`, but this time you need to add a new key calle
 
 ```
 [params.logo]
-  url = "http://bit.ly/2tNSEG4"
+  url = "https://raw.githubusercontent.com/saraharcos/r_fridays/master/r-fridays_logo_small.png"
   width = 50
   height = 50
   alt = "Logo"
