@@ -10,7 +10,9 @@ excerpt: "Start here if you are new to R Fridays"
 
 # Getting Started
 
-Welcome to R Fridays! The goal of R Fridays is to provide a group environment for solving problems in biology/biochemistry data analysis (best practices for statistics, visualization, etc.). Bring data your own data and questions, or just come to learn from problems that others are working on.
+Welcome to R Fridays! The goal of R Fridays is to provide a group environment for solving problems in biology/biochemistry data analysis (best practices for statistics, visualization, etc.). Bring your own data and questions, or just come to learn from problems that others are working on.
+
+R fridays are held every Friday from 3pm-4pm in [Light Hall 618](https://goo.gl/maps/TDA4sbdg1obfX1Ft7) (Vanderbilt University). We will strive to provide snacks.
 
 Before your first R Friday, make sure that you have R and RStudio installed on your machine. 
 
