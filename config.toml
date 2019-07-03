@@ -38,3 +38,5 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     height = 50
     alt = "Logo"
 
+    [params.banner]
+    url = "https://raw.githubusercontent.com/saraharcos/r_fridays/master/r-fridays_logo.png"
