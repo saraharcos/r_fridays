@@ -22,7 +22,12 @@ To check if R is installed on your machine, open up a command line (terminal) wi
 R --version
 ```
 
-The above should produce the following: `command R --version`
+The above should produce the following:
+
+```{bash}
+R --version
+```
+
 
 You can place just about anything in this that you would normally put in markdown so go crazy. 
 

@@ -33,12 +33,12 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     MathJaxVersion = "2.7.1"
 
     [params.logo]
-    url = "https://raw.githubusercontent.com/saraharcos/r_fridays/master/r-fridays_logo_small.png"
+    url = "https://raw.githubusercontent.com/saraharcos/r_fridays/master/figures/r-fridays_logo_small.png"
     width = 50
     height = 50
     alt = "Logo"
 
     [params.banner]
-    url = "https://raw.githubusercontent.com/saraharcos/r_fridays/master/r-fridays_logo.png"
+    url = "https://raw.githubusercontent.com/saraharcos/r_fridays/master/figures/r-fridays_logo.png"
     
     
