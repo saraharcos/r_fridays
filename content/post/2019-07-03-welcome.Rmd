@@ -24,7 +24,7 @@ To check if R is installed on your machine, open up a command line (terminal) wi
 R --version
 ```
 
-The above should produce the following:
+The above should produce something like the following:
 
 ```{bash echo = FALSE}
 R --version
