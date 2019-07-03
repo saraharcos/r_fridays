@@ -26,7 +26,7 @@ R --version
 
 The above should produce the following:
 
-```{bash}
+```{bash echo = FALSE}
 R --version
 ```
 
@@ -35,7 +35,7 @@ If this doesn't work, you can download R [here](http://www.r-project.org).
 
 ## RStudio: 
 
-RStudio is an integrate development environment (IDE) that simplifies writing and running R code. You can download RStudio Desktop [here](https://www.rstudio.com/products/rstudio/download/).
+RStudio is an integrated development environment (IDE) that simplifies writing and running R code. You can download RStudio Desktop [here](https://www.rstudio.com/products/rstudio/download/).
 
 ## Key Resources
 
