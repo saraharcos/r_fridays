@@ -107,5 +107,44 @@ print(&quot;Hello World&quot;)
 <div id="vim-is-nice..-but-rstudio-is-awesome" class="section level2">
 <h2>Vim is nice.. but RStudio is awesome</h2>
 <p>RStudio is an integrated development environment (IDE) that simplifies writing and running code in R, like the workflow we went through above: writing an RScript and running the commands inside the script.</p>
+<p>Let’s open RStudio and run some basic arithmetic commands.</p>
+<ol style="list-style-type: decimal">
+<li>Open RStudio</li>
+<li>In the console window (bottom left) type: <code>2+2</code></li>
+</ol>
+<pre class="r"><code>2+2</code></pre>
+<pre><code>## [1] 4</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>Play around with other basic arithmetic in the console. Try <code>+</code>, <code>-</code>, <code>/</code>, and <code>*</code>.</li>
+<li>In R, you can “assign” a value to a variable using the <code>&lt;-</code> command. To print the value of a variable, just type the variable name into the console and press enter</li>
+</ol>
+<pre class="r"><code>x &lt;- 2
+x</code></pre>
+<pre><code>## [1] 2</code></pre>
+<pre class="r"><code>y &lt;- 4
+y</code></pre>
+<pre><code>## [1] 4</code></pre>
+<pre class="r"><code>x+y</code></pre>
+<pre><code>## [1] 6</code></pre>
+<pre class="r"><code>z &lt;- x*y
+z</code></pre>
+<pre><code>## [1] 8</code></pre>
+<p>The console in RStudio is basically the same as running an R session from the command line.</p>
+<p>RStudio makes editing an Rscript and viewing the console output easy by showing them in the same window. This allows you to make iterative changes to your code.</p>
+<p>An RStudio “Project” is a good way to organize your Rscripts. When a Project is created, the directory of the Project becomes the working directory for the scripts inside the Project. This solves potential issues with finding the right paths to data files you want to analyze.</p>
+<p>Next we will make a Project based on the r-fridays directory you created earlier.</p>
+<ol style="list-style-type: decimal">
+<li>Click on the Project button in the very top right of the RStudio window and select “New Project”.</li>
+<li>Select “Existing Directory”, and browse to the r-fridays directory we made, located in your home directory.</li>
+<li>Click “Create Project”</li>
+<li>In the “Files” pane on the lower right of your screen, click on helloworld.r to open the file.</li>
+<li>Highlight the print statement in your code, and then hit “cmd + enter” on your keyboard. View the results in the console!</li>
+<li>Add some other print or arithmetic statements to the helloworld.r script, and practice running individual statements or groups of statements.</li>
+</ol>
 </div>
+</div>
+<div id="wrap-up" class="section level1">
+<h1>Wrap up</h1>
+<p>Now you know a bit about running R commands and using R scripts and RStudio to organize your work! Next, we will tackle real data generously donated by Sam Lisy of the Ascano Lab. If you weren’t able to attend this R Fridays in person, you can see a summary of our work in the next post: “Day 1: A First Look at qPCR Data”.</p>
+<p><em>If some of the information covered in this intro was confusing to you, don’t fret! Learning to program in R is a lot to take in at once. There are many helpful tools online that go into more detail than we covered here (see the <a href="http://r-fridays.rbind.io/2019/07/03/welcome/">Welcome to R Fridays</a> post). If you have specific questions, don’t hesitate to <a href="https://saraharcos.github.io/contact.html">email me</a>.</em></p>
 </div>
