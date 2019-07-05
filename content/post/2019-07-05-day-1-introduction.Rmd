@@ -19,11 +19,11 @@ output: ioslides_presentation
 ## Why not excel/prism/etc?
 Much of the basic data analysis that we do in R can also be done in excel or prism. Yet many scientists prefer R. Here are a few reasons I like R:
 
- - R facilitates __reproducible__ data analysis. When the steps you take to manipulate and analyze your data are recorded in an __R script__, these steps can be reproduced on a different day, by a different person, and with a different computer.
+ - R facilitates __reproducible__ data analysis. When the steps you take to manipulate and analyze your data are recorded in an __R script__, these steps can be more easily reproduced on a different day, by a different person, and with a different computer.
  
  - R saves time. If you set up your Rscript well, you can analyze future data in just a few keystrokes. With excel/prism, data analysis is harder to automate- which also makes it more prone to errors in copy/pasting or picking the wrong settings. 
 
- - More complex data analysis and visualization (high-throughput sequencing, proteomics, etc.) cannot be done efficiently with excel or prism. Becoming familiar with using R to analyze simpler data in will prepare you for handling more complex datasets.
+ - More complex data analysis and visualization (high-throughput sequencing, proteomics, etc.) cannot be done efficiently with excel or prism. Becoming familiar with using R to analyze simpler data will prepare you for handling more complex datasets.
 
 ## The Basics: Hello World
 Let's start by opening an R session and printing "Hello World":
@@ -54,7 +54,6 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-[Previously saved workspace restored]
 ```
   
 3. Then type: `print("Hello World")`
