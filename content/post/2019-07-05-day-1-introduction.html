@@ -1,0 +1,111 @@
+---
+title: 'Day 1: Introduction'
+author: Sarah Arcos
+date: '2019-07-05'
+slug: day-1-introduction
+categories: []
+tags: []
+math: no
+meta: yes
+output: ioslides_presentation
+---
+
+
+
+<div id="r-basics" class="section level1">
+<h1>R Basics</h1>
+<div id="what-is-r" class="section level2">
+<h2>What is R?</h2>
+<ul>
+<li>R is a programming language that is commonly used for analysis of biological data. R can help you analyze, visualize, and perform statistics with your data.</li>
+</ul>
+</div>
+<div id="why-not-excelprismetc" class="section level2">
+<h2>Why not excel/prism/etc?</h2>
+<p>Much of the basic data analysis that we do in R can also be done in excel or prism. Yet many scientists prefer R. Here are a few reasons I like R:</p>
+<ul>
+<li><p>R facilitates <strong>reproducible</strong> data analysis. When the steps you take to manipulate and analyze your data are recorded in an <strong>R script</strong>, these steps can be reproduced on a different day, by a different person, and with a different computer.</p></li>
+<li><p>R saves time. If you set up your Rscript well, you can analyze future data in just a few keystrokes. With excel/prism, data analysis is harder to automate- which also makes it more prone to errors in copy/pasting or picking the wrong settings.</p></li>
+<li><p>More complex data analysis and visualization (high-throughput sequencing, proteomics, etc.) cannot be done efficiently with excel or prism. Becoming familiar with using R to analyze simpler data in will prepare you for handling more complex datasets.</p></li>
+</ul>
+</div>
+<div id="the-basics-hello-world" class="section level2">
+<h2>The Basics: Hello World</h2>
+<p>Let’s start by opening an R session and printing “Hello World”:</p>
+<ol style="list-style-type: decimal">
+<li>Open a command line (terminal) window on your computer</li>
+<li>To start an R session, type R and hit enter.</li>
+</ol>
+<pre class="bash"><code>Last login: Fri Jul  5 10:45:29 on ttys000
+Hello, Sarah!
+&gt;&gt; R
+
+R version 3.5.3 (2019-03-11) -- &quot;Great Truth&quot;
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type &#39;license()&#39; or &#39;licence()&#39; for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type &#39;contributors()&#39; for more information and
+&#39;citation()&#39; on how to cite R or R packages in publications.
+
+Type &#39;demo()&#39; for some demos, &#39;help()&#39; for on-line help, or
+&#39;help.start()&#39; for an HTML browser interface to help.
+Type &#39;q()&#39; to quit R.
+
+[Previously saved workspace restored]</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>Then type: <code>print(&quot;Hello World&quot;)</code></li>
+</ol>
+<pre class="bash"><code>&gt; print(&quot;Hello World&quot;)
+[1] &quot;Hello World&quot;
+&gt;</code></pre>
+<ol start="4" style="list-style-type: decimal">
+<li>To quit the R session, type <code>quit()</code> and then <code>n</code></li>
+</ol>
+<pre class="bash"><code>&gt; quit()
+Save workspace image? [y/n/c]: n
+&gt;&gt;</code></pre>
+</div>
+<div id="running-an-rscript" class="section level2">
+<h2>Running an Rscript</h2>
+<p>You can run R commands by starting an R session like before, but to save your work so you can <strong>reproduce</strong> it later, you can put the R commands into an <strong>Rscript</strong>.</p>
+<ol style="list-style-type: decimal">
+<li>Before we start making scripts, let’s create a directory (folder) to store them.
+<ul>
+<li>On your command line, type <code>mkdir r-fridays</code>. This will make a directory called r-fridays in your home directory.</li>
+<li>Then type <code>cd r-fridays</code> to enter that directory. Now when we make an Rscript, it will be saved to your r-fridays directory.</li>
+</ul></li>
+</ol>
+<pre class="bash"><code>&gt;&gt; mkdir r-fridays
+&gt;&gt; cd r-fridays</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>From the command line, type <code>vim helloworld.r</code>. This will open the <strong>vim text editor</strong> in your command line window and create a file (script) named <code>helloworld.r</code>.</li>
+</ol>
+<pre class="bash"><code>&gt;&gt; vim helloworld.r</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>From here, hit the <code>i</code> key on your keyboard to <strong>insert</strong> text. Then type <code>print(&quot;Hello World&quot;)</code>.</li>
+<li>Hit the <code>esc</code> key on your keyboard to escape the <strong>insert</strong> mode. Then type <code>:wq</code> to quit vim and save changes to the helloworld.r file.</li>
+<li>After typing <code>:wq</code>, your window should return to the normal command line.</li>
+<li>Let’s check that vim saved your changes. To see the contents of helloworld.r, type <code>cat helloworld.r</code></li>
+</ol>
+<pre class="bash"><code>&gt;&gt; cat helloworld.r
+print(&quot;Hello World&quot;)
+&gt;&gt;</code></pre>
+<ol start="7" style="list-style-type: decimal">
+<li>To run the helloworld.r Rscript that we just made, type <code>Rscript helloworld.r</code></li>
+</ol>
+<pre class="bash"><code>&gt;&gt; Rscript helloworld.R
+[1] &quot;Hello World&quot;
+&gt;&gt;</code></pre>
+</div>
+<div id="vim-is-nice..-but-rstudio-is-awesome" class="section level2">
+<h2>Vim is nice.. but RStudio is awesome</h2>
+<p>RStudio is an integrated development environment (IDE) that simplifies writing and running code in R, like the workflow we went through above: writing an RScript and running the commands inside the script.</p>
+</div>
+</div>

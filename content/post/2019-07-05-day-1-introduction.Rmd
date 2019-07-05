@@ -1,0 +1,116 @@
+---
+title: 'Day 1: Introduction'
+author: Sarah Arcos
+date: '2019-07-05'
+slug: day-1-introduction
+categories: []
+tags: []
+math: no
+meta: yes
+output: ioslides_presentation
+---
+
+# R Basics
+
+## What is R?
+
+ - R is a programming language that is commonly used for analysis of biological data. R can help you analyze, visualize, and perform statistics with your data.
+
+## Why not excel/prism/etc?
+Much of the basic data analysis that we do in R can also be done in excel or prism. Yet many scientists prefer R. Here are a few reasons I like R:
+
+ - R facilitates __reproducible__ data analysis. When the steps you take to manipulate and analyze your data are recorded in an __R script__, these steps can be reproduced on a different day, by a different person, and with a different computer.
+ 
+ - R saves time. If you set up your Rscript well, you can analyze future data in just a few keystrokes. With excel/prism, data analysis is harder to automate- which also makes it more prone to errors in copy/pasting or picking the wrong settings. 
+
+ - More complex data analysis and visualization (high-throughput sequencing, proteomics, etc.) cannot be done efficiently with excel or prism. Becoming familiar with using R to analyze simpler data in will prepare you for handling more complex datasets.
+
+## The Basics: Hello World
+Let's start by opening an R session and printing "Hello World":
+
+1. Open a command line (terminal) window on your computer
+2. To start an R session, type R and hit enter.
+  
+```{bash, eval = FALSE}
+Last login: Fri Jul  5 10:45:29 on ttys000
+Hello, Sarah!
+>> R
+
+R version 3.5.3 (2019-03-11) -- "Great Truth"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+```
+  
+3. Then type: `print("Hello World")`
+
+```{bash, eval = FALSE}
+> print("Hello World")
+[1] "Hello World"
+>
+```
+
+4. To quit the R session, type `quit()` and then `n`
+  
+```{bash, eval = FALSE}
+> quit()
+Save workspace image? [y/n/c]: n
+>>
+```
+
+## Running an Rscript
+You can run R commands by starting an R session like before, but to save your work so you can __reproduce__ it later, you can put the R commands into an __Rscript__.
+
+1. Before we start making scripts, let's create a directory (folder) to store them. 
+    + On your command line, type `mkdir r-fridays`. This will make a directory called r-fridays in your home directory. 
+    + Then type `cd r-fridays` to enter that directory. Now when we make an Rscript, it will be saved to your r-fridays directory.
+    
+```{bash, eval = FALSE}
+>> mkdir r-fridays
+>> cd r-fridays
+```
+
+2. From the command line, type `vim helloworld.r`. This will open the __vim text editor__ in your command line window and create a file (script) named `helloworld.r`.
+
+```{bash, eval = FALSE}
+>> vim helloworld.r
+```
+
+3. From here, hit the `i` key on your keyboard to __insert__ text. Then type `print("Hello World")`.
+4. Hit the `esc` key on your keyboard to escape the __insert__ mode. Then type `:wq` to quit vim and save changes to the helloworld.r file.
+5. After typing `:wq`, your window should return to the normal command line.
+6. Let's check that vim saved your changes. To see the contents of helloworld.r, type `cat helloworld.r`
+
+```{bash, eval = FALSE}
+>> cat helloworld.r
+print("Hello World")
+>>
+```
+
+7. To run the helloworld.r Rscript that we just made, type `Rscript helloworld.r`
+  
+```{bash, eval = FALSE}
+>> Rscript helloworld.R
+[1] "Hello World"
+>>
+```
+
+## Vim is nice.. but RStudio is awesome
+RStudio is an integrated development environment (IDE) that simplifies writing and running code in R, like the workflow we went through above: writing an RScript and running the commands inside the script.
+
+
