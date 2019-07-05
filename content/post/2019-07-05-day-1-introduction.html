@@ -36,6 +36,7 @@ output: ioslides_presentation
 <li>Open a command line (terminal) window on your computer</li>
 <li>To start an R session, type R and hit enter.</li>
 </ol>
+<p><label for="tufte-mn-" class="margin-toggle">⊕</label><input type="checkbox" id="tufte-mn-" class="margin-toggle"><span class="marginnote">Did you get an error? You may need to <a href="https://www.r-project.org">install R</a>.</span></p>
 <pre class="bash"><code>Last login: Fri Jul  5 10:45:29 on ttys000
 Hello, Sarah!
 &gt;&gt; R
@@ -81,11 +82,13 @@ Save workspace image? [y/n/c]: n
 <li>Then type <code>cd r-fridays</code> to enter that directory. Now when we make an Rscript, it will be saved to your r-fridays directory.</li>
 </ul></li>
 </ol>
+<p><label for="tufte-mn-" class="margin-toggle">⊕</label><input type="checkbox" id="tufte-mn-" class="margin-toggle"><span class="marginnote">New to the command line? Not to worry! There are plenty of great <a href="https://tutorial.djangogirls.org/en/intro_to_command_line/">online tutorials</a> about command line basics.</span></p>
 <pre class="bash"><code>&gt;&gt; mkdir r-fridays
 &gt;&gt; cd r-fridays</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li>From the command line, type <code>vim helloworld.r</code>. This will open the <strong>vim text editor</strong> in your command line window and create a file (script) named <code>helloworld.r</code>.</li>
 </ol>
+<p><label for="tufte-mn-" class="margin-toggle">⊕</label><input type="checkbox" id="tufte-mn-" class="margin-toggle"><span class="marginnote">vim is a powerful text editor- that we won’t be covering in detail in R Fridays. Today we are just using it to make a simple Rscript</span></p>
 <pre class="bash"><code>&gt;&gt; vim helloworld.r</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>From here, hit the <code>i</code> key on your keyboard to <strong>insert</strong> text. Then type <code>print(&quot;Hello World&quot;)</code>.</li>
@@ -107,6 +110,7 @@ print(&quot;Hello World&quot;)
 <h2>Vim is nice.. but RStudio is awesome</h2>
 <p>RStudio is an integrated development environment (IDE) that simplifies writing and running code in R, like the workflow we went through above: writing an RScript and running the commands inside the script.</p>
 <p>Let’s open RStudio and run some basic arithmetic commands.</p>
+<p><label for="tufte-mn-" class="margin-toggle">⊕</label><input type="checkbox" id="tufte-mn-" class="margin-toggle"><span class="marginnote">If you don’t have RStudio, you can download the desktop version <a href="https://www.rstudio.com/products/rstudio/download/">here</a>.</span></p>
 <ol style="list-style-type: decimal">
 <li>Open RStudio</li>
 <li>In the console window (bottom left) type: <code>2+2</code></li>
@@ -129,7 +133,7 @@ y</code></pre>
 z</code></pre>
 <pre><code>## [1] 8</code></pre>
 <p>The console in RStudio is basically the same as running an R session from the command line.</p>
-<p>RStudio makes editing an Rscript and viewing the console output easy by showing them in the same window. This allows you to make iterative changes to your code.</p>
+<p>RStudio makes editing an Rscript and viewing the console output easy by showing them in the same window. This helps you to make iterative changes to your code.</p>
 <p>An RStudio “Project” is a good way to organize your Rscripts. When a Project is created, the directory of the Project becomes the working directory for the scripts inside the Project. This solves potential issues with finding the right paths to data files you want to analyze.</p>
 <p>Next we will make a Project based on the r-fridays directory you created earlier.</p>
 <ol style="list-style-type: decimal">
@@ -144,6 +148,6 @@ z</code></pre>
 </div>
 <div id="wrap-up" class="section level1">
 <h1>Wrap up</h1>
-<p>Now you know a bit about running R commands and using R scripts and RStudio to organize your work! Next, we will tackle real data generously donated by Sam Lisy of the Ascano Lab. If you weren’t able to attend this R Fridays in person, you can see a summary of our work in the next post: “Day 1: A First Look at qPCR Data”.</p>
+<p>Now you know a bit about running R commands and using R scripts and RStudio to organize your work! Next, we will tackle real data generously donated by Sam Lisy of the Ascano Lab. If you weren’t able to attend this R Friday in person, you can see a summary of our work in the next post: “Day 1: A First Look at qPCR Data”.</p>
 <p><em>If some of the information covered in this intro was confusing to you, don’t fret! Learning to program in R is a lot to take in at once. There are many helpful tools online that go into more detail than we covered here (see the <a href="http://r-fridays.rbind.io/2019/07/03/welcome/">Welcome to R Fridays</a> post). If you have specific questions, don’t hesitate to <a href="https://saraharcos.github.io/contact.html">email me</a>.</em></p>
 </div>
