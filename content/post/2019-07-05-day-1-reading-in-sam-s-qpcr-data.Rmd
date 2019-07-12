@@ -1,0 +1,124 @@
+---
+title: 'Day 1: Reading in Sam''s qPCR data'
+author: Sarah Arcos
+date: '2019-07-06'
+slug: day-1-reading-in-sam-s-qpcr-data
+categories: []
+tags: []
+---
+
+
+# The Data
+
+Sam Lisy of the Ascano lab has volunteered her qPCR data as an example for R Fridays! Here is a summary of her data: 
+`r tufte::margin_note("If you'd like a copy of Sam's data to follow along with this example, just send me an [email](https://saraharcos.github.io/contact.html)")` 
+
+- 2 technical replicates of 2 biological replicates
+- Three genes tested (IFN, IFIT, Tubulin)
+- A positive control (Katie Rothamel's old samples) and a no-template control (NTC)
+- Samples were run with the Applied Biosystems StepOnePlus real-time qPCR machine
+- The raw Ct values were output to excel using the Applied Biosystems software
+- Sam added another sheet to the excel file describing the samples and conditions tested
+
+## Step 1: Read the data into R from the excel sheet
+
+For this example, we will use the [Tidyverse](https://www.tidyverse.org) collection of packages for analyzing data in R. We will also use a package called [readxl](https://readxl.tidyverse.org) that allows R to read in excel files. First, let's install and load the tidyverse and load readxl to your R session:
+
+`r tufte::margin_note("The '#' symbol denotes a comment in R code. A comment is a line in an Rscript that is not evaluated. You can use comments to make notes to yourself about what a line of code is doing. You can also use them to prevent a line of code from being run-- a useful way to de-bug your Rscript.")`  
+
+```{r,eval = FALSE}
+#This line installs the tidyverse packages
+install.packages("tidyverse")
+```
+
+```{r}
+#This line loads the packages into your current R session
+library(tidyverse)
+```
+
+`r tufte::margin_note("Notice that while we had to install and load the tidyverse, we only had to load readxl. The readxl package is installed as part of the tidyverse, but as it isn't a 'core' package, we have to load it explicitly.")`  
+
+```{r}
+#This line loads the readxl package
+library(readxl)
+```
+
+
+Once you have installed a package, you won't need to do it again unless you update R or RStudio. Every time you start a new R session, you will need to load any packages you want to use in that session with the `library(package_name)` command.
+
+To read the data into R, we will use the `read_xlsx()` function from the readxl package. The `read_xlsx()` function takes a number of different __arguments__ to figure out how to read data given how our excel file is formatted. To see what these arguments are, view the __help page__ of the `read_xlsx()` function:
+
+```{r, eval = FALSE}
+?read_xlsx
+```
+
+In the help pane of your Rstudio window, you should see the help page for `read_xlsx`. From this page, we can see the arguments for the `read_xlsx` function:
+
+`read_xlsx(path, sheet = NULL, range = NULL, col_names = TRUE, col_types = NULL, na = "", trim_ws = TRUE, skip = 0, n_max = Inf, guess_max = min(1000, n_max), progress = readxl_progress(), .name_repair = "unique")`
+
+Some of the arguments are given default values, like `sheet = NULL`. For these arguments, we can choose to provide a different value, or we can leave the default value. 
+
+- For the `path` argument, we need to provide the path to the excel file. If you put the excel file in the same folder as your R Project, the path is just the file name: `R-Friday_SL_qPCR_009.xlsx`.
+- `sheet`: Sam added a sheet to describe her samples and conditions, so the sheet that contains the data is the second sheet. We will set this argument as `sheet = 2`.
+- `range`: This specifies the range of cells to read the data from. We will leave this as the default `NULL` for now.
+- `col_names`: This argument is asking if the columns in Sam's data already have names. They do, so we don't have to change the default value of `TRUE`.
+- `col_types`: This would let us dictate the "type" of each column (ie: numeric, character, string). We can leave the default value of `NULL`, so R will guess which type to use.
+- `na`: In qPCR data, sometimes a Ct value is "Undetermined". In order for R to understand that the rest of the Ct values should be numeric, not strings, we can use the `na` argument to tell R to turn any instance of "Undetermined" into an NA value.
+- `trim_ws`: We don't need to remove whitespace from our data, so we can leave this as the default value.
+- `skip`: This argument tells R if there are lines at the beginning of the file to skip. Sam's file has header lines that contain info about the machine settings, but aren't important for analyzing the data in R. There are 7 of these lines, so we can set `skip = 7`.
+- `n_max`: Sam's data also has lines at the end of the file that we don't need. We can set the n_max argument to tell R the maximum number of lines to read from the file, in order to ignore the extra lines at the bottom. `n_max = 37`
+
+We can leave the remaining arguments with their default values. We are left with the following function call to read in Sam's data:
+`read_xlsx("../../data/R-Friday_SL_qPCR_009.xlsx", sheet = 2, na = "Undetermined", skip = 7, n_max = 37)`
+
+Now we can read in the data and save it as a __variable__ called `sams_data`:
+
+`r tufte::margin_note("The '<-' operator tells R to assign the data it reads from the excel file to the variable sams_data.")`  
+```{r}
+#Reading in Sam's qPCR data from excel
+
+sams_data <- read_xlsx("../../data/R-Friday_SL_qPCR_009.xlsx", sheet = 2, na = "Undetermined", skip = 7, n_max = 37)
+```
+
+We can view the structure of the data in R using `glimpse()`.
+`r tufte::margin_note("Wow! That is a lot of variables (columns). In the next step, we will get rid of any columns we don't need to use for the analysis.")`  
+```{r}
+glimpse(sams_data)
+```
+
+
+## Organizing the data (part 1):
+
+First, we should select only the columns we need to use to calculate a $\Delta\Delta$Ct from Sam's data. The columns we need are `Sample Name`, `Target Name`, and `Cт Mean`. Notice that the `т` from the Applied Biosystems data is not a normal `T`. For now you can copy the symbol from the output of `glimpse`, and later we can change this to a normal `T`. `r tufte::margin_note("Other columns like CT and CT SD are important to really understand the data, and we will use them later.")`  
+
+To "Select" columns from a table, the Tidyverse has a handy function called `select()`. Let's view the help page to see what arguments we need to set:
+
+```{r, eval = FALSE}
+?select()
+```
+
+From the help page, the select function arguments are `select(.data, ...)`. 
+
+- `.data`: This argument is the name of the table we want to select columns from. In our case, that is `sams_data`.
+- `...`: This argument is a bit more confusing. For our purposes, the `...` is telling us that the remaining arguments should be the names of the variables (columns) from `sams_data` that we want to keep.
+
+So our call to select will be: `select(sams_data, "Sample Name", "Target Name", "Cт Mean")`.
+
+- But wait! In the details of the `...` argument on the help page, it says we can use `select` to __rename__ columns by setting `new_name = old_name` in our list of columns. We can use this to change the weird `т` to a normal `T`.
+
+Our new function call is: `select(sams_data, "Sample Name", "Target Name", "CT Mean" = "Cт Mean")`
+
+```{r}
+#Save the table with the selected columns as a new variable
+sams_data_meanCT <- select(sams_data, "Sample Name", "Target Name", "CT Mean" = "Cт Mean")
+
+#Glimpse the data to see the new structure
+glimpse(sams_data_meanCT)
+```
+
+
+# Wrap-up
+
+Out of time for today! In our next session, we will finish organizing (cleaning) Sam's data. We will then calculate and plot the $\Delta\Delta$Ct values for her samples. If we have time, we can add color to the plot to denote which samples had a high SD between technical replicates. See you next week!
+
+_As always, if you have any questions don't hesitate to [email me](https://saraharcos.github.io/contact.html)._
