@@ -1,0 +1,175 @@
+---
+title: 'Day 2: Cleaning qPCR Data'
+author: Sarah Arcos
+date: '2019-07-12'
+slug: day-2-cleaning-qpcr-data
+categories: []
+tags:
+  - qPCR
+---
+
+
+
+<div id="cleaning-data-with-the-tidyverse" class="section level1">
+<h1>Cleaning Data with the Tidyverse</h1>
+<p>Today we will continue “cleaning” Sam’s data so that we can calculate <span class="math inline">\(\Delta\Delta\)</span>Ct values and make plots. Last week, we read in the data using the <code>read_xlsx</code> function from the readxl package, and we selected columns for further analysis using the <code>select</code> function from the dplyr package.</p>
+<div id="cleaning-and-organizing-data-with-dplyr-verbs" class="section level2">
+<h2>Cleaning and organizing data with <a href="https://dplyr.tidyverse.org">dplyr verbs</a></h2>
+<p>The dplyr package is a “core” part of the tidyverse, so you don’t need to load or install this package directly if you have already loaded the tidyverse. The dplyr <strong>verbs</strong> are a set of functions in dplyr that make cleaning and manipulating data intuitive. We have already seen one verb, the <code>select()</code> function. Today we will use most of the others:</p>
+<ul>
+<li><code>filter()</code>: Subsets a data frame by rows (companion to <code>select()</code>, which subsets a data frame by columns)</li>
+<li><code>mutate()</code>: Adds a new column based on an old column(s), or modifies a column. For example, making a new column from the product of two existing columns.</li>
+<li><code>arrange()</code>: Orders the rows of a data frame (like largest to smallest using a specific column)</li>
+<li><code>summarize()</code>: The easiest way to think of this is that it calculates summary values from columns of a dataframe. For example, the mean and SD.</li>
+</ul>
+<p>We will also use two other data manipulation functions from a related package, the <a href="https://tidyr.tidyverse.org">tidyr package</a>– this is also a “core” tidyverse package. These functions will allow us to change rows to columns and vice versa.</p>
+<ul>
+<li><code>spread()</code>: Takes a <strong>key</strong> and <strong>value</strong> column, and spreads the <strong>keys</strong> into column names, containing the <strong>values</strong>.</li>
+<li><code>gather()</code>: The opposite of spread. Turns column names into a single <strong>key</strong> column, and gathers the associated <strong>values</strong> into a <strong>value</strong> column.</li>
+</ul>
+<p>Let’s briefly review the steps we took last week:</p>
+<ol style="list-style-type: decimal">
+<li>Load the tidyverse and readxl.</li>
+</ol>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ✔ ggplot2 3.2.0     ✔ purrr   0.3.2
+## ✔ tibble  2.1.3     ✔ dplyr   0.8.1
+## ✔ tidyr   0.8.3     ✔ stringr 1.4.0
+## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(readxl)</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Read in Sam’s data using the <code>read_xlsx</code> function:</li>
+</ol>
+<pre class="r"><code>#Reading in Sam&#39;s qPCR data from excel
+
+sams_data &lt;- read_xlsx(&quot;../../data/R-Friday_SL_qPCR_009.xlsx&quot;, sheet = 2, na = &quot;Undetermined&quot;, skip = 7, n_max = 37)</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li><strong>Select</strong> the three columns from Sam’s data that we care about:</li>
+</ol>
+<pre class="r"><code>sams_data_meanCT &lt;- select(sams_data, &quot;Sample Name&quot;, &quot;Target Name&quot;, &quot;CT Mean&quot; = &quot;Cт Mean&quot;)</code></pre>
+<p>Great! Let’s <code>glimpse()</code> the data to see the structure:</p>
+<pre class="r"><code>glimpse(sams_data_meanCT)</code></pre>
+<pre><code>## Observations: 36
+## Variables: 3
+## $ `Sample Name` &lt;chr&gt; &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+2&quot;, &quot;+2&quot;, &quot;+…
+## $ `Target Name` &lt;chr&gt; &quot;Tubulin&quot;, &quot;Tubulin&quot;, &quot;IFIT&quot;, &quot;IFIT&quot;, &quot;IFN&quot;, &quot;IFN&quot;…
+## $ `CT Mean`     &lt;chr&gt; &quot;29.990015029907227&quot;, &quot;29.990015029907227&quot;, &quot;29.83…</code></pre>
+<p>From the output of <code>glimpse()</code> we see that the <code>select()</code> function correctly selected the three columns of Sample Name, Target Name, and CT Mean.</p>
+<p>One of the most useful features of RStudio is the ability to <code>view()</code> data that is loaded in to R. You can either call <code>view(table_name)</code> in the console, or you can click the name of the table in the “Environment” pane on the top right of the RStudio window.</p>
+<p>If you scroll to the last few rows of Sam’s data, you will see that there are two entries that stand out: the Sample Names “007” and <code>NA</code>. From Sam’s description of the data in the original excel file, we know that she used “007” to reference old samples from Katie Rothamel, and the <code>NA</code> samples are the no-template control (NTC).</p>
+<p>For this analysis, we don’t need either of these observations. We can use the <code>filter()</code> function to <strong>filter</strong> out observations (rows) that we don’t want in the data.</p>
+<p>First, let’s see the help entry for <code>filter()</code>. When the help page pops up, there are two options. We are working the the <strong>dplyr</strong> function.</p>
+<pre class="r"><code>?filter()</code></pre>
+<p>The help page specifies that the first argument is the data we want to filter, and the remaining arguments are “Logical predicates defined in the terms of the variables in <code>.data</code>”. This means that the remaining arguments must evaluate to <code>TRUE</code> or <code>FALSE</code>, and must reference columns of the first argument (the table). Here are a couple of examples of statements that would evaluate to <code>TRUE</code> or <code>FALSE</code>, in the context of Sam’s data:</p>
+<ul>
+<li><code>`Sample   Name` == &quot;+1&quot;</code> evaluates to <code>TRUE</code> for some observations and <code>FALSE</code> for others</li>
+<li><code>`Sample   Name` == &quot;Winsol&quot;</code> evaluates to <code>FALSE</code> for all observations</li>
+<li><code>`CT   Mean` &gt; 20</code> can be <code>TRUE</code> or <code>FALSE</code>
+<label for="tufte-mn-" class="margin-toggle">⊕</label><input type="checkbox" id="tufte-mn-" class="margin-toggle"><span class="marginnote"><a href="https://stringr.tidyverse.org/reference/str_detect.html">str_detect</a> is a pattern-matching function for strings (words or a series of characters). It looks for the pattern ‘Tub’ in the Target Name column. str_detect will return TRUE if the observation contains ‘Tub’.</span></li>
+<li><code>str_detect(`Target   Name`, &quot;Tub&quot;)</code> would be <code>TRUE</code> only when the Target Name is Tubulin.</li>
+</ul>
+<p>Let’s <strong>filter</strong> Sam’s data for Sample Names that do not equal “007” or NA.</p>
+<p><label for="tufte-mn-" class="margin-toggle">⊕</label><input type="checkbox" id="tufte-mn-" class="margin-toggle"><span class="marginnote">The is.na() function does exactly what you would expect. It returns TRUE if the value is NA.</span></p>
+<pre class="r"><code>sams_data_meanCT_filtered &lt;- filter(sams_data_meanCT, `Sample Name` != &quot;007&quot; &amp; !is.na(`Sample Name`))</code></pre>
+<p>Use the RStudio viewer to check that the “007” and NA observations have been removed.</p>
+<p>If we keep assigning each step of our data cleaning to a new data table, we will end up with a lot of tables by the time we are done! Luckily, the tidyverse has a solution called a pipe: <code>%&gt;%</code>. The pipe <strong>operator</strong> takes the table <strong>output</strong> of the function on the left side, and uses it as the <strong>first argument</strong> of the function on the right side. You may have noticed that both <code>select()</code> and <code>filter()</code> output a table, and also take a table as their first argument. This design allows for easy uses of pipes (<code>%&gt;%</code>) to simplify R code.</p>
+<p>Let’s re-write the <strong>select</strong> and <strong>filter</strong> functions using pipes. Here is the original call to <strong>select</strong>: <code>sams_data_meanCT &lt;- select(sams_data, &quot;Sample Name&quot;, &quot;Target Name&quot;, &quot;CT Mean&quot; = &quot;Cт Mean&quot;)</code>. Let’s re-arrange this call to <strong>pipe</strong> the table <code>sams_data</code> into the select function, rather than supplying it directly as the first argument:</p>
+<pre class="r"><code>sams_data_meanCT &lt;- sams_data %&gt;% 
+  #sams_data is piped to the first argument of select
+  select(&quot;Sample Name&quot;, &quot;Target Name&quot;, &quot;CT Mean&quot; = &quot;Cт Mean&quot;)
+  #the output of select is saved as sams_data_meanCT</code></pre>
+<p>If you check out the data in the viewer, you can see that this results in the exact same table as the previous <strong>select</strong> call. Now we can add another <strong>pipe</strong> to take send this table to the first argument of <strong>filter</strong>:</p>
+<pre class="r"><code>sams_data_meanCT &lt;- sams_data %&gt;% 
+  #sams_data is piped to the first argument of select
+  select(&quot;Sample Name&quot;, &quot;Target Name&quot;, &quot;CT Mean&quot; = &quot;Cт Mean&quot;) %&gt;%
+  #the output of select is piped to the first argument of filter
+  filter(`Sample Name` != &quot;007&quot; &amp; !is.na(`Sample Name`))
+  #the output of filter is saved as sams_data_meanCT</code></pre>
+<p>Great! Now we can combine data cleaning steps in a <strong>pipe</strong> and save only the end result, so we don’t end up with a bunch of intermediate tables.</p>
+<p>Next, we need to make sure that the CT Mean column is treated as a number. If you check your last <code>glimpse()</code> call, you can see that R thinks this column is a character, or <code>chr</code>.</p>
+<p>We can change the type of the CT Mean column to numeric using the <code>mutate()</code> verb. This verb performs operations on an existing column or columns, and either updates a column or makes a new one. We want to use the <code>as.numeric()</code> function to <strong>update</strong> the CT Mean column.</p>
+<p>As with the other dplyr verbs, the first argument to <code>mutate()</code> is the table. The remaining arguments are in the format of <code>new_column_name = function(old_column_name)</code>. Since we just want to update the CT Mean column instead of making a new column, we can set the <code>new_column_name</code> to the same as the old column. We can add our <code>mutate()</code> call on to our existing pipe:</p>
+<pre class="r"><code>sams_data_meanCT &lt;- sams_data %&gt;% 
+  #sams_data is piped to the first argument of select
+  select(&quot;Sample Name&quot;, &quot;Target Name&quot;, &quot;CT Mean&quot; = &quot;Cт Mean&quot;) %&gt;%
+  #the output of select is piped to the first argument of filter
+  filter(`Sample Name` != &quot;007&quot; &amp; !is.na(`Sample Name`)) %&gt;%
+  #the output of filter is spiped to the first argument of mutate
+  #To update instead of making a new column, we set the &quot;new&quot; column name to the same as the old column name
+  mutate(`CT Mean` = as.numeric(`CT Mean`))
+  #the output of mutate is saved to sams_data_meanCT</code></pre>
+<p>Lastly, we need to remove duplicate values from our table. We have duplicate values because we took the CT Mean column from the original data, which also contained CTs from technical replicates. We can do this very simply by adding a call to <code>unique()</code> to the end of our pipe:</p>
+<pre class="r"><code>sams_data_meanCT &lt;- sams_data %&gt;% 
+  #sams_data is piped to the first argument of select
+  select(&quot;Sample Name&quot;, &quot;Target Name&quot;, &quot;CT Mean&quot; = &quot;Cт Mean&quot;) %&gt;%
+  #the output of select is piped to the first argument of filter
+  filter(`Sample Name` != &quot;007&quot; &amp; !is.na(`Sample Name`)) %&gt;%
+  #the output of filter is spiped to the first argument of mutate
+  #To update instead of making a new column, we set the &quot;new&quot; column name to the same as the old column name
+  mutate(`CT Mean` = as.numeric(`CT Mean`)) %&gt;%
+  #the output of mutate is the first (and only) argument to unique()
+  #unique() removes identical observations
+  unique()
+  #the output of unique is saved to sams_data_meanCT</code></pre>
+</div>
+<div id="calculating-deltact" class="section level2">
+<h2>Calculating <span class="math inline">\(\Delta\)</span>Ct</h2>
+<p>Use <code>glimpse()</code> on the cleaned data to refresh yourself on the columns and rows in the table.</p>
+<pre class="r"><code>glimpse(sams_data_meanCT)</code></pre>
+<pre><code>## Observations: 12
+## Variables: 3
+## $ `Sample Name` &lt;chr&gt; &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+2&quot;, &quot;+2&quot;, &quot;+2&quot;, &quot;-1&quot;, &quot;-1&quot;, &quot;-…
+## $ `Target Name` &lt;chr&gt; &quot;Tubulin&quot;, &quot;IFIT&quot;, &quot;IFN&quot;, &quot;Tubulin&quot;, &quot;IFIT&quot;, &quot;IFN&quot;…
+## $ `CT Mean`     &lt;dbl&gt; 29.99002, 29.83651, 35.85084, 26.42561, 26.34094, …</code></pre>
+<p>There are three columns, with Sample Name, Target Name and CT Mean. To calculate the <span class="math inline">\(\Delta\)</span>Ct values, we need to subtract the CT Mean of the <strong>housekeeping</strong> gene (Tubulin) from the CT Means of the experimental genes (IFN and IFIT). In excel, a straightforward way to do this is to pull out the Tubulin values into a new column, and then subtract across. As it turns out, we can also do this in R!</p>
+<p>To “isolate” the Tubulin values, we will first <strong>spread</strong> the Target Name column into three new columns called Tubulin, IFIT and IFN using the <code>spread()</code> function. Then we will <strong>gather</strong> the IFIT and IFN columns back in to a single column using the <code>gather()</code> function, leaving the Tubulin column out.</p>
+<p>Spread takes three arguments, the name of the table, and the names of a <strong>key</strong> and <strong>value</strong> column. The unique values in the <strong>key</strong> column become new column names, and the data in the <strong>value</strong> column gets rearranged into these new columns. For our data, the <strong>key</strong> column is Target Name and the <strong>value</strong> column is CT Mean. We can build on to our previous pipe:</p>
+<pre class="r"><code>sams_data_meanCT &lt;- sams_data %&gt;% 
+  #sams_data is piped to the first argument of select
+  select(&quot;Sample Name&quot;, &quot;Target Name&quot;, &quot;CT Mean&quot; = &quot;Cт Mean&quot;) %&gt;%
+  #the output of select is piped to the first argument of filter
+  filter(`Sample Name` != &quot;007&quot; &amp; !is.na(`Sample Name`)) %&gt;%
+  #the output of filter is spiped to the first argument of mutate
+  #To update instead of making a new column, we set the &quot;new&quot; column name to the same as the old column name
+  mutate(`CT Mean` = as.numeric(`CT Mean`)) %&gt;%
+  #the output of mutate is the first (and only) argument to unique()
+  unique() %&gt;%
+  #the output of unique is piped to the first argument of spread
+  spread(`Target Name`, `CT Mean`)
+  #the output of spread is saved to sams_data_meanCT</code></pre>
+<p>Here is what <code>spread()</code> should look like on our data:
+<img src="https://raw.githubusercontent.com/saraharcos/r_fridays/master/figures/spread.png" alt="spread()" /></p>
+<p>Make sure to view the new table using the viewer to ensure that <code>spread()</code> behaved correctly. It is often helpful to pick an observation, like Sample Name = +1, and follow the CT values as you manipulate the columns to convince yourself that the relationships in the data are maintained.</p>
+<p>Now we can <code>gather()</code> the IFN and IFIT columns back into Target and CT columns. The first argument is the table that gets piped in from <code>spread()</code>. The next two arguments are new names for the <strong>key</strong> and <strong>value</strong> columns. We can take this opportunity to simplify our column names to Target and CT from Target Name and CT Mean. The remaining arguments are columns in the table that <code>gather()</code> should ignore (see the minus sign).</p>
+<pre class="r"><code>sams_data_meanCT &lt;- sams_data %&gt;% 
+  #sams_data is piped to the first argument of select
+  select(&quot;Sample Name&quot;, &quot;Target Name&quot;, &quot;CT Mean&quot; = &quot;Cт Mean&quot;) %&gt;%
+  #the output of select is piped to the first argument of filter
+  filter(`Sample Name` != &quot;007&quot; &amp; !is.na(`Sample Name`)) %&gt;%
+  #the output of filter is spiped to the first argument of mutate
+  #To update instead of making a new column, we set the &quot;new&quot; column name to the same as the old column name
+  mutate(`CT Mean` = as.numeric(`CT Mean`)) %&gt;%
+  #the output of mutate is the first (and only) argument to unique()
+  unique() %&gt;%
+  #the output of unique is piped to the first argument of spread()
+  spread(`Target Name`, `CT Mean`) %&gt;%
+  #the output of spread is piped to the first argument of gather()
+  gather(Target, CT, -`Sample Name`, -Tubulin)
+  #the output of gather is saved to sams_data_meanCT</code></pre>
+<p>Here is what <code>gather()</code> should look like with our data.
+<img src="https://raw.githubusercontent.com/saraharcos/r_fridays/master/figures/gather.png" alt="gather()" /></p>
+<p>Once again, check the table in the viewer to make sure that <code>gather()</code> behaved as you expect.</p>
+<p>Great! Now we can calculate the <span class="math inline">\(\Delta\)</span>Ct. To calucate <span class="math inline">\(\Delta\)</span>Ct, we can use the <code>mutate()</code> verb to subtract the values in the Tubulin column from the values in the CT column. As before, the first argument is the table (which we can pipe in). The second argument is <code>new_column_name = function(old_column_name(s))</code>. Since we are subtracting one column from another, our second argument will be <code>deltaCt = CT - Tubulin</code>.</p>
+<pre class="r"><code>sams_data_deltaCT &lt;- sams_data_meanCT %&gt;%
+  mutate(deltaCT = CT - Tubulin)</code></pre>
+</div>
+</div>
+<div id="wrap-up" class="section level1">
+<h1>Wrap Up</h1>
+<p>Woo! One <span class="math inline">\(\Delta\)</span> down. Next week we will calculate <span class="math inline">\(\Delta\Delta\)</span>Ct and expression values. Next we will plot the data. If we have time, we will add color to the plot to denote samples with high standard deviations in CT values between technical replicates. See you next week!</p>
+<p><em>As always, if you have any questions don’t hesitate to <a href="https://saraharcos.github.io/contact.html">email me</a>.</em></p>
+</div>
