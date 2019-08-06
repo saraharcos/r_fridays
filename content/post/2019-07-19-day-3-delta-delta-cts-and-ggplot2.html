@@ -1,0 +1,134 @@
+---
+title: 'Day 3: Delta-Delta CTs and ggplot2'
+author: Sarah Arcos
+date: '2019-07-19'
+slug: day-3-delta-delta-cts-and-ggplot2
+categories: []
+tags:
+  - qPCR
+---
+
+
+
+<div id="calculating-deltadeltact-values-and-plotting-with-ggplot" class="section level1">
+<h1>Calculating <span class="math inline">\(\Delta\Delta\)</span>Ct values and plotting with ggplot</h1>
+<p>Welcome back to R Fridays! Last week, we ended with calculating the first <span class="math inline">\(\Delta\)</span>Ct from Sam’s qPCR data. Today, we will calculate the <span class="math inline">\(\Delta\Delta\)</span>Ct and expression values. We will finish with plotting the results using the <code>ggplot2</code> package.</p>
+<div id="how-to-calculate-deltadeltact" class="section level2">
+<h2>How to Calculate <span class="math inline">\(\Delta\Delta\)</span>Ct</h2>
+<p>To calculate the <span class="math inline">\(\Delta\Delta\)</span>Ct, we first need to identify our control samples, and then calculate the mean <span class="math inline">\(\Delta\)</span>Ct for those controls, for each target gene tested.</p>
+<p>Sam’s data has 4 different samples: +1, -1, +2, and -2. The “+” and “-” refer to naive or cGAMP-stimulated cells. The 1 and 2 are different biological replicates.</p>
+<p>So the control samples are -1 and -2; we first need to calculate the mean <span class="math inline">\(\Delta\)</span>Ct of -1 and -2 for the two different targets that Sam tested (IFN and IFIT).</p>
+<p>Let’s start by setting up new variables for the average control <span class="math inline">\(\Delta\)</span>Ct for IFN and IFIT. We can put in the beginnings of a dplyr pipe-line, starting with the <span class="math inline">\(\Delta\)</span>Ct data frame as input.</p>
+<pre class="r"><code>Control_average_IFN &lt;- sams_data_deltaCT %&gt;%
+  #We will fill in the rest of the pipe-line here
+
+Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
+  #We will fill in the rest of the pipe-line here</code></pre>
+<p>Now that we have our pipe-line template set up, we can start adding some dplyr verbs to pull our specifically the control samples. We know the control samples all have “-” in their <code>Sample Name</code>, so we can use <code>filter()</code> and <code>str_detect()</code> to isolate these samples.</p>
+<pre class="r"><code>Control_average_IFN &lt;- sams_data_deltaCT %&gt;%
+  filter(str_detect(`Sample Name`, &quot;-&quot;))
+  #We will fill in the rest of the pipe-line here
+
+Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
+    filter(str_detect(`Sample Name`, &quot;-&quot;))
+  #We will fill in the rest of the pipe-line here</code></pre>
+<p>Open the table using the RStudio viewer to check that now the only samples in the table are control samples.</p>
+<p>We need to calculate the average for IFN and IFIT separately, so now let’s <code>filter()</code> by the Target column.</p>
+<pre class="r"><code>Control_average_IFN &lt;- sams_data_deltaCT %&gt;%
+  filter(str_detect(`Sample Name`, &quot;-&quot;)) %&gt;%
+  filter(Target == &quot;IFN&quot;)
+  #We will fill in the rest of the pipe-line here
+
+Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
+  filter(str_detect(`Sample Name`, &quot;-&quot;)) %&gt;%
+  filter(Target == &quot;IFIT&quot;)
+  #We will fill in the rest of the pipe-line here</code></pre>
+<p>Great! Notice that we used to two calls to <code>filter()</code> in a row. We could combine these into a single <code>filter()</code> call like below. Sometimes this makes code look cleaner, other times it may help to see each filtering step separately– it’s up to you to decide what makes your code easiest to read.</p>
+<pre class="r"><code>Control_average_IFN &lt;- sams_data_deltaCT %&gt;%
+  filter(str_detect(`Sample Name`, &quot;-&quot;) &amp; Target == &quot;IFN&quot;)
+  #We will fill in the rest of the pipe-line here
+
+Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
+  filter(str_detect(`Sample Name`, &quot;-&quot;) &amp; Target == &quot;IFIT&quot;)
+  #We will fill in the rest of the pipe-line here</code></pre>
+<p>Next, we can calculate the <code>mean()</code> of the <span class="math inline">\(\Delta\)</span>Ct values in each data frame. For the next steps, it will be easiest if the means are stored as individual values rather than in data frame form. To pull out a column so that we can calculate and save a single summary value, we will use the <code>pull()</code> function to pull out the <code>deltaCT</code> column.</p>
+<pre class="r"><code>Control_average_IFN &lt;- sams_data_deltaCT %&gt;%
+  filter(str_detect(`Sample Name`, &quot;-&quot;) &amp; Target == &quot;IFN&quot;) %&gt;%
+  pull(deltaCT) %&gt;%
+  mean()
+  #We will fill in the rest of the pipe-line here
+
+Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
+  filter(str_detect(`Sample Name`, &quot;-&quot;) &amp; Target == &quot;IFIT&quot;) %&gt;%
+  pull(deltaCT) %&gt;%
+  mean()
+  #We will fill in the rest of the pipe-line here</code></pre>
+<p>Perfect! Now we have the mean <span class="math inline">\(\Delta\)</span>Ct values for our control samples. Notice that when the result of the pipe-line was a single value instead of a table, the Control_average_IFN and Control_average_IFIT variables jumped from the <strong>Data</strong> to the <strong>Values</strong> section of the Environment pane at the top right of the RStudio window.</p>
+<p>The last step is to calculate <span class="math inline">\(\Delta\Delta\)</span>Ct for the cGAMP treated samples based on the control values we calculated. We want to make a new column based on a calculation using an old column, so we will use the <code>mutate()</code> verb. Since there is a different control value for each target, we can use the <code>case_when()</code> call inside <code>mutate()</code> to tell R how to handle each Target.</p>
+<pre class="r"><code>deltadeltaCT &lt;- sams_data_deltaCT %&gt;%
+  mutate(ddCT = case_when(
+    Target == &quot;IFIT&quot; ~ deltaCT - Control_average_IFIT,
+    Target == &quot;IFN&quot; ~ deltaCT - Control_average_IFN
+  ))</code></pre>
+<p>I’ve decided to make a new data frame here called deltadeltaCT. You could just add the <span class="math inline">\(\Delta\Delta\)</span>Ct calculation onto the pipe that we made last week, but I felt that this was a logical place to make a new data frame; sometimes longer pipe-lines can become difficult to interpret.</p>
+</div>
+<div id="calculating-expression-values" class="section level2">
+<h2>Calculating Expression values</h2>
+<p>Now we can finally calculate expression values! This step is much less complicated– we just need to make a new column with <code>mutate()</code> containing the result of 2 raised to the power of the negative <span class="math inline">\(\Delta\Delta\)</span>Ct value.</p>
+<pre class="r"><code>sams_data_expression &lt;- deltadeltaCT %&gt;%
+  mutate(expression = 2^(-ddCT))</code></pre>
+</div>
+<div id="plotting-with-ggplot2add-link-here" class="section level2">
+<h2>Plotting with <code>ggplot2</code>[ADD LINK HERE]</h2>
+<p><code>ggplot2</code> is a package that is a “core” part of the <code>tidyverse</code>. This means we can start using <code>ggplot2</code> right away, since we loaded the <code>tidyverse</code> at the beginning of the session.</p>
+<p>To make a <code>ggplot</code>, we can use the <code>ggplot()</code> function. The first argument is the data frame we want to plot. The next argument is a series of <strong>aesthetic mappings</strong>. These are things like the x and y values of the plot, groups in the data, and other things.</p>
+<p>For our data, the x values would be the <code>Target</code> column, and the y values would be the <code>expression</code> column from the data frame <code>sams_data_expression</code></p>
+<pre class="r"><code>ggplot(sams_data_expression, aes(x = Target, y = expression))</code></pre>
+<p>Next, to tell <code>ggplot()</code> what kind of plot to make (scatter plot), we add the specification <code>geom_point()</code> using the <code>+</code> operator. The <code>+</code> operator is kind of like the pipe operator (<code>%&gt;%</code>) in that you use it to build on to the code that came before it– but this is not a perfect analogy. The <code>+</code> is specific to building plots with <code>ggplot()</code>.</p>
+<p><code>ggplot()</code> makes different kinds of plots using different <strong>geometries</strong>. So we specified a scatter plot using the point geometry (<code>geom_point()</code>). Some other common geometries are <code>geom_boxplot()</code>, <code>geom_bar()</code>, and <code>geom_line()</code>.</p>
+<pre class="r"><code>ggplot(sams_data_expression, aes(x = Target, y = expression)) +
+  geom_point()</code></pre>
+<p><img src="/post/2019-07-19-day-3-delta-delta-cts-and-ggplot2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>This plot shows our data… but not in the most useful format. It’s impossible to tell which points come from the control or cGAMP-treated samples. It also looks like some points are plotted right on top of one another, making it hard to see the exact location of all the data points.</p>
+<p>To address the first issue, we can add a variable to the plotting data frame for control or cGAMP-treated samples. We can then use this variable to tell <code>ggplot()</code> that our data has different groups.</p>
+<p>To make the new column, use <code>mutate()</code>, <code>case_when()</code>, and <code>str_detect()</code>:</p>
+<pre class="r"><code>sams_data_expression &lt;- sams_data_expression %&gt;%
+  mutate(SampleType = case_when(
+    str_detect(`Sample Name`, &quot;-&quot;) ~ &quot;Control&quot;,
+    TRUE ~ &quot;cGAMP-Treated&quot;
+  ))</code></pre>
+<p>Now tell <code>ggplot2</code> to color the points by our grouping variable by adding <code>color = SampleType</code> to the <code>aes()</code> in the <code>ggplot()</code> we built:</p>
+<pre class="r"><code>ggplot(sams_data_expression, aes(x = Target, y = expression, color = SampleType)) +
+  geom_point()</code></pre>
+<p><img src="/post/2019-07-19-day-3-delta-delta-cts-and-ggplot2_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>Much better! But it would be even easier to see the differences between control and treated samples if the points were separated in the plot. We can do this by setting the <code>position</code> argument in <code>geom_point()</code> to <code>position_dodge()</code> with a width of <code>0.3</code>.</p>
+<pre class="r"><code>ggplot(sams_data_expression, aes(x = Target, y = expression, color = SampleType)) +
+  geom_point(position = position_dodge(0.3))</code></pre>
+<p><img src="/post/2019-07-19-day-3-delta-delta-cts-and-ggplot2_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>Another solid improvement. But it’s still hard to see some of the overlapping points. There are actually two good solutions to this issue.</p>
+<ol style="list-style-type: decimal">
+<li>We can change the transparency of the points using <code>alpha</code>.</li>
+<li>We can add some random noise to the points so they spread our by switching our <code>position</code> argument to <code>jitterdodge()</code>.</li>
+</ol>
+<p>Let’s try to first option, setting <code>alpha</code> to <code>0.5</code>:</p>
+<pre class="r"><code>ggplot(sams_data_expression, aes(x = Target, y = expression, color = SampleType)) +
+  geom_point(position = position_dodge(0.3), alpha = 0.5)</code></pre>
+<p><img src="/post/2019-07-19-day-3-delta-delta-cts-and-ggplot2_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>And now the second option:</p>
+<pre class="r"><code>ggplot(sams_data_expression, aes(x = Target, y = expression, color = SampleType)) +
+  geom_point(position = position_jitterdodge(0.2))</code></pre>
+<p><img src="/post/2019-07-19-day-3-delta-delta-cts-and-ggplot2_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p>Great! Either of these two options improves the visualization. Pick whichever you like best. Sometimes if there are many points, it can be useful to use both strategies together.</p>
+<p>Before we leave, let’s try specifying different shapes for each group instead of different colors. This is as simple as changing the aesthetic mapping from <code>color = SampleType</code> to <code>shape = SampleType</code>.</p>
+<pre class="r"><code>ggplot(sams_data_expression, aes(x = Target, y = expression, shape = SampleType)) +
+  geom_point(position = position_dodge(0.3), alpha = 0.5)</code></pre>
+<p><img src="/post/2019-07-19-day-3-delta-delta-cts-and-ggplot2_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+</div>
+</div>
+<div id="wrap-up" class="section level1">
+<h1>Wrap-up</h1>
+<p>Today, we calculated expression values from Sam’s qPCR experiment and visualized the data in a scatter plot. From the plot, it’s clear that treatment with cGAMP led to up-regulation of IFIT expression, but not IFN expression.</p>
+<p>Since there were only two biological replicates, we can’t calculate statistics from this data– and just by visualizing the data we can make plenty of useful conclusions.</p>
+<p>One explanation for the lack of IFN up-regulation could be that some of Sam’s CT values were close to the upper end of the detection limit for qPCR. Next week we will move on to a different data-set, but a next step for Sam could be to add color or text to her plot to note which points had CT values that were suspect.</p>
+<p><em>As always, if you have any questions don’t hesitate to <a href="https://saraharcos.github.io/contact.html">email me</a>.</em></p>
+</div>
