@@ -58,7 +58,7 @@ Control_average_IFIT <- sams_data_deltaCT %>%
 
 ```
 
-Now that we have our pipe-line template set up, we can start adding some dplyr verbs to pull our specifically the control samples. We know the control samples all have "-" in their `Sample Name`, so we can use `filter()` and `str_detect()` to isolate these samples.
+Now that we have our pipe-line template set up, we can start adding some dplyr verbs to pull out specifically the control samples. We know the control samples all have "-" in their Sample Name, so we can use `filter()` and `str_detect()` to isolate these samples.
 
 ```{r}
 Control_average_IFN <- sams_data_deltaCT %>%
@@ -71,7 +71,7 @@ Control_average_IFIT <- sams_data_deltaCT %>%
 
 ```
 
-Open the table using the RStudio viewer to check that now the only samples in the table are control samples.
+Open the table using the RStudio viewer to check that the only samples in the new table are control samples.
 
 We need to calculate the average for IFN and IFIT separately, so now let's `filter()` by the Target column.
 
@@ -101,20 +101,20 @@ Control_average_IFIT <- sams_data_deltaCT %>%
 
 ```
 
-Next, we can calculate the `mean()` of the $\Delta$Ct values in each data frame. For the next steps, it will be easiest if the means are stored as individual values rather than in data frame form. To pull out a column so that we can calculate and save a single summary value, we will use the `pull()` function to pull out the `deltaCT` column.
+Next, we can calculate the `mean()` of the $\Delta$Ct values in each data frame. For the next steps, it will be easiest if the means are stored as individual values rather than in data frame form. To pull out a column so that we can calculate and save a single summary value, we will use the `pull()` function to pull out the deltaCT column.
 
 ```{r}
 Control_average_IFN <- sams_data_deltaCT %>%
   filter(str_detect(`Sample Name`, "-") & Target == "IFN") %>%
   pull(deltaCT) %>%
   mean()
-  #We will fill in the rest of the pipe-line here
+
 
 Control_average_IFIT <- sams_data_deltaCT %>%
   filter(str_detect(`Sample Name`, "-") & Target == "IFIT") %>%
   pull(deltaCT) %>%
   mean()
-  #We will fill in the rest of the pipe-line here
+
 ```
 
 Perfect! Now we have the mean $\Delta$Ct values for our control samples. Notice that when the result of the pipe-line was a single value instead of a table, the Control_average_IFN and Control_average_IFIT variables jumped from the __Data__ to the __Values__ section of the Environment pane at the top right of the RStudio window.
@@ -129,7 +129,7 @@ deltadeltaCT <- sams_data_deltaCT %>%
   ))
 ```
 
-I've decided to make a new data frame here called deltadeltaCT. You could just add the $\Delta\Delta$Ct calculation onto the pipe that we made last week, but I felt that this was a logical place to make a new data frame; sometimes longer pipe-lines can become difficult to interpret.
+I've decided to make a new data frame here called deltadeltaCT. You could just add the $\Delta\Delta$Ct calculation onto the pipe that we made last week, but I felt that this was a reasonable place to make a new data frame; sometimes longer pipe-lines can become difficult to interpret.
 
 ## Calculating Expression values
 
@@ -140,21 +140,21 @@ sams_data_expression <- deltadeltaCT %>%
   mutate(expression = 2^(-ddCT))
 ```
 
-## Plotting with `ggplot2`[ADD LINK HERE]
+## Plotting with [`ggplot2`](https://ggplot2.tidyverse.org)
 
 `ggplot2` is a package that is a "core" part of the `tidyverse`. This means we can start using `ggplot2` right away, since we loaded the `tidyverse` at the beginning of the session. 
 
-To make a `ggplot`, we can use the `ggplot()` function. The first argument is the data frame we want to plot. The next argument is a series of __aesthetic mappings__. These are things like the x and y values of the plot, groups in the data, and other things. 
+To make a ggplot, we can use the `ggplot()` function. The first argument is the data frame we want to plot. The next argument is a series of __aesthetic mappings__, specified with `aes()`. These are things like the x and y values of the plot, or groups in the data. 
 
-For our data, the x values would be the `Target` column, and the y values would be the `expression` column from the data frame `sams_data_expression`
+For our data, the x values would be the Target column, and the y values would be the expression column from the data frame sams_data_expression.
 
 ```{r, eval = FALSE}
 ggplot(sams_data_expression, aes(x = Target, y = expression))
 ```
 
-Next, to tell `ggplot()` what kind of plot to make (scatter plot), we add the specification `geom_point()` using the `+` operator. The `+` operator is kind of like the pipe operator (`%>%`) in that you use it to build on to the code that came before it-- but this is not a perfect analogy. The `+` is specific to building plots with `ggplot()`.
+Next, to tell `ggplot()` what kind of plot to make (scatter plot), we add the specification `geom_point()` using the `+` operator. The `+` operator is kind of like the pipe operator (`%>%`) in that you use it to build on to the code that came before it-- but this is not a perfect analogy. The `+` is used to add layers to plots with `ggplot()`; the pipe (`%>%`) operator sends the result of the left side of the pipe as the first argument on the function on the right side.
 
-`ggplot()` makes different kinds of plots using different __geometries__. So we specified a scatter plot using the point geometry (`geom_point()`). Some other common geometries are `geom_boxplot()`, `geom_bar()`, and `geom_line()`.
+`ggplot()` makes different kinds of plots using different __geometries__. So we can specify a scatter plot using the point geometry (`geom_point()`). Some other common geometries are `geom_boxplot()`, `geom_bar()`, and `geom_line()`.
 
 ```{r}
 ggplot(sams_data_expression, aes(x = Target, y = expression)) +
@@ -175,7 +175,7 @@ sams_data_expression <- sams_data_expression %>%
   ))
 ```
 
-Now tell `ggplot2` to color the points by our grouping variable by adding `color = SampleType` to the `aes()` in the `ggplot()` we built:
+Now tell `ggplot2` to color the points by our grouping variable by adding `color = SampleType` to the `aes()` in the `ggplot()` call:
 
 ```{r}
 ggplot(sams_data_expression, aes(x = Target, y = expression, color = SampleType)) +
@@ -192,7 +192,7 @@ ggplot(sams_data_expression, aes(x = Target, y = expression, color = SampleType)
 Another solid improvement. But it's still hard to see some of the overlapping points. There are actually two good solutions to this issue. 
 
  1. We can change the transparency of the points using `alpha`.
- 2. We can add some random noise to the points so they spread our by switching our `position` argument to `jitterdodge()`.
+ 2. We can add some random noise to the points so they spread out by using `jitterdodge()` in our `position` argument.
  
 Let's try to first option, setting `alpha` to `0.5`:
 

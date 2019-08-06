@@ -24,7 +24,7 @@ tags:
 
 Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
   #We will fill in the rest of the pipe-line here</code></pre>
-<p>Now that we have our pipe-line template set up, we can start adding some dplyr verbs to pull our specifically the control samples. We know the control samples all have “-” in their <code>Sample Name</code>, so we can use <code>filter()</code> and <code>str_detect()</code> to isolate these samples.</p>
+<p>Now that we have our pipe-line template set up, we can start adding some dplyr verbs to pull out specifically the control samples. We know the control samples all have “-” in their Sample Name, so we can use <code>filter()</code> and <code>str_detect()</code> to isolate these samples.</p>
 <pre class="r"><code>Control_average_IFN &lt;- sams_data_deltaCT %&gt;%
   filter(str_detect(`Sample Name`, &quot;-&quot;))
   #We will fill in the rest of the pipe-line here
@@ -32,7 +32,7 @@ Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
 Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
     filter(str_detect(`Sample Name`, &quot;-&quot;))
   #We will fill in the rest of the pipe-line here</code></pre>
-<p>Open the table using the RStudio viewer to check that now the only samples in the table are control samples.</p>
+<p>Open the table using the RStudio viewer to check that the only samples in the new table are control samples.</p>
 <p>We need to calculate the average for IFN and IFIT separately, so now let’s <code>filter()</code> by the Target column.</p>
 <pre class="r"><code>Control_average_IFN &lt;- sams_data_deltaCT %&gt;%
   filter(str_detect(`Sample Name`, &quot;-&quot;)) %&gt;%
@@ -51,18 +51,17 @@ Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
 Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
   filter(str_detect(`Sample Name`, &quot;-&quot;) &amp; Target == &quot;IFIT&quot;)
   #We will fill in the rest of the pipe-line here</code></pre>
-<p>Next, we can calculate the <code>mean()</code> of the <span class="math inline">\(\Delta\)</span>Ct values in each data frame. For the next steps, it will be easiest if the means are stored as individual values rather than in data frame form. To pull out a column so that we can calculate and save a single summary value, we will use the <code>pull()</code> function to pull out the <code>deltaCT</code> column.</p>
+<p>Next, we can calculate the <code>mean()</code> of the <span class="math inline">\(\Delta\)</span>Ct values in each data frame. For the next steps, it will be easiest if the means are stored as individual values rather than in data frame form. To pull out a column so that we can calculate and save a single summary value, we will use the <code>pull()</code> function to pull out the deltaCT column.</p>
 <pre class="r"><code>Control_average_IFN &lt;- sams_data_deltaCT %&gt;%
   filter(str_detect(`Sample Name`, &quot;-&quot;) &amp; Target == &quot;IFN&quot;) %&gt;%
   pull(deltaCT) %&gt;%
   mean()
-  #We will fill in the rest of the pipe-line here
+
 
 Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
   filter(str_detect(`Sample Name`, &quot;-&quot;) &amp; Target == &quot;IFIT&quot;) %&gt;%
   pull(deltaCT) %&gt;%
-  mean()
-  #We will fill in the rest of the pipe-line here</code></pre>
+  mean()</code></pre>
 <p>Perfect! Now we have the mean <span class="math inline">\(\Delta\)</span>Ct values for our control samples. Notice that when the result of the pipe-line was a single value instead of a table, the Control_average_IFN and Control_average_IFIT variables jumped from the <strong>Data</strong> to the <strong>Values</strong> section of the Environment pane at the top right of the RStudio window.</p>
 <p>The last step is to calculate <span class="math inline">\(\Delta\Delta\)</span>Ct for the cGAMP treated samples based on the control values we calculated. We want to make a new column based on a calculation using an old column, so we will use the <code>mutate()</code> verb. Since there is a different control value for each target, we can use the <code>case_when()</code> call inside <code>mutate()</code> to tell R how to handle each Target.</p>
 <pre class="r"><code>deltadeltaCT &lt;- sams_data_deltaCT %&gt;%
@@ -70,7 +69,7 @@ Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
     Target == &quot;IFIT&quot; ~ deltaCT - Control_average_IFIT,
     Target == &quot;IFN&quot; ~ deltaCT - Control_average_IFN
   ))</code></pre>
-<p>I’ve decided to make a new data frame here called deltadeltaCT. You could just add the <span class="math inline">\(\Delta\Delta\)</span>Ct calculation onto the pipe that we made last week, but I felt that this was a logical place to make a new data frame; sometimes longer pipe-lines can become difficult to interpret.</p>
+<p>I’ve decided to make a new data frame here called deltadeltaCT. You could just add the <span class="math inline">\(\Delta\Delta\)</span>Ct calculation onto the pipe that we made last week, but I felt that this was a reasonable place to make a new data frame; sometimes longer pipe-lines can become difficult to interpret.</p>
 </div>
 <div id="calculating-expression-values" class="section level2">
 <h2>Calculating Expression values</h2>
@@ -78,14 +77,14 @@ Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
 <pre class="r"><code>sams_data_expression &lt;- deltadeltaCT %&gt;%
   mutate(expression = 2^(-ddCT))</code></pre>
 </div>
-<div id="plotting-with-ggplot2add-link-here" class="section level2">
-<h2>Plotting with <code>ggplot2</code>[ADD LINK HERE]</h2>
+<div id="plotting-with-ggplot2" class="section level2">
+<h2>Plotting with <a href="https://ggplot2.tidyverse.org"><code>ggplot2</code></a></h2>
 <p><code>ggplot2</code> is a package that is a “core” part of the <code>tidyverse</code>. This means we can start using <code>ggplot2</code> right away, since we loaded the <code>tidyverse</code> at the beginning of the session.</p>
-<p>To make a <code>ggplot</code>, we can use the <code>ggplot()</code> function. The first argument is the data frame we want to plot. The next argument is a series of <strong>aesthetic mappings</strong>. These are things like the x and y values of the plot, groups in the data, and other things.</p>
-<p>For our data, the x values would be the <code>Target</code> column, and the y values would be the <code>expression</code> column from the data frame <code>sams_data_expression</code></p>
+<p>To make a ggplot, we can use the <code>ggplot()</code> function. The first argument is the data frame we want to plot. The next argument is a series of <strong>aesthetic mappings</strong>, specified with <code>aes()</code>. These are things like the x and y values of the plot, or groups in the data.</p>
+<p>For our data, the x values would be the Target column, and the y values would be the expression column from the data frame sams_data_expression.</p>
 <pre class="r"><code>ggplot(sams_data_expression, aes(x = Target, y = expression))</code></pre>
-<p>Next, to tell <code>ggplot()</code> what kind of plot to make (scatter plot), we add the specification <code>geom_point()</code> using the <code>+</code> operator. The <code>+</code> operator is kind of like the pipe operator (<code>%&gt;%</code>) in that you use it to build on to the code that came before it– but this is not a perfect analogy. The <code>+</code> is specific to building plots with <code>ggplot()</code>.</p>
-<p><code>ggplot()</code> makes different kinds of plots using different <strong>geometries</strong>. So we specified a scatter plot using the point geometry (<code>geom_point()</code>). Some other common geometries are <code>geom_boxplot()</code>, <code>geom_bar()</code>, and <code>geom_line()</code>.</p>
+<p>Next, to tell <code>ggplot()</code> what kind of plot to make (scatter plot), we add the specification <code>geom_point()</code> using the <code>+</code> operator. The <code>+</code> operator is kind of like the pipe operator (<code>%&gt;%</code>) in that you use it to build on to the code that came before it– but this is not a perfect analogy. The <code>+</code> is used to add layers to plots with <code>ggplot()</code>; the pipe (<code>%&gt;%</code>) operator sends the result of the left side of the pipe as the first argument on the function on the right side.</p>
+<p><code>ggplot()</code> makes different kinds of plots using different <strong>geometries</strong>. So we can specify a scatter plot using the point geometry (<code>geom_point()</code>). Some other common geometries are <code>geom_boxplot()</code>, <code>geom_bar()</code>, and <code>geom_line()</code>.</p>
 <pre class="r"><code>ggplot(sams_data_expression, aes(x = Target, y = expression)) +
   geom_point()</code></pre>
 <p><img src="/post/2019-07-19-day-3-delta-delta-cts-and-ggplot2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
@@ -97,7 +96,7 @@ Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
     str_detect(`Sample Name`, &quot;-&quot;) ~ &quot;Control&quot;,
     TRUE ~ &quot;cGAMP-Treated&quot;
   ))</code></pre>
-<p>Now tell <code>ggplot2</code> to color the points by our grouping variable by adding <code>color = SampleType</code> to the <code>aes()</code> in the <code>ggplot()</code> we built:</p>
+<p>Now tell <code>ggplot2</code> to color the points by our grouping variable by adding <code>color = SampleType</code> to the <code>aes()</code> in the <code>ggplot()</code> call:</p>
 <pre class="r"><code>ggplot(sams_data_expression, aes(x = Target, y = expression, color = SampleType)) +
   geom_point()</code></pre>
 <p><img src="/post/2019-07-19-day-3-delta-delta-cts-and-ggplot2_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
@@ -108,7 +107,7 @@ Control_average_IFIT &lt;- sams_data_deltaCT %&gt;%
 <p>Another solid improvement. But it’s still hard to see some of the overlapping points. There are actually two good solutions to this issue.</p>
 <ol style="list-style-type: decimal">
 <li>We can change the transparency of the points using <code>alpha</code>.</li>
-<li>We can add some random noise to the points so they spread our by switching our <code>position</code> argument to <code>jitterdodge()</code>.</li>
+<li>We can add some random noise to the points so they spread out by using <code>jitterdodge()</code> in our <code>position</code> argument.</li>
 </ol>
 <p>Let’s try to first option, setting <code>alpha</code> to <code>0.5</code>:</p>
 <pre class="r"><code>ggplot(sams_data_expression, aes(x = Target, y = expression, color = SampleType)) +
