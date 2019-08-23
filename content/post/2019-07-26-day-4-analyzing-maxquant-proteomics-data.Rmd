@@ -1,0 +1,99 @@
+---
+title: 'Day 4: Analyzing MaxQuant proteomics data'
+author: Sarah Arcos
+date: '2019-07-26'
+slug: day-4-analyzing-maxquant-proteomics-data
+categories: []
+tags:
+  - proteomics
+---
+
+# Processing proteomics data from MaxQuant
+
+The data we will analyze today is comes from an LC-MS/MS analysis of the human RNA-binding proteins that directly interact with incoming RNA viruses. You can use [this link](https://saraharcos.github.io/projects.html) to see more about how this data was generated (manuscript under review).
+
+We tested three different timepoints and 2 different treatment conditions (+ and - interferon/IFNB1). For these conditions, we have three biological replicates. We also have two biological replicates for each condition. Here is a summary of each sample:
+
+
+
+The raw LC-MS/MS data was processed using [MaxQuant](https://www.maxquant.org), which outputs a table of peptide-spectrum matches called proteinGroups.txt. Today, we will:
+  1. Read in proteinGroups.txt
+  2. Plot the distribution of raw MS1 ion intensities
+  3. Color the plot by the timepoint tested
+
+These plots will help us determine whether the MS1 ion intensities are distributed normally, and whether they can safely be used as a semi-quantitative measure of protein abundance.
+
+## Reading in proteinGroups.txt
+
+First, let's load the tidyverse package to our R session.
+```{r, message = FALSE}
+library(tidyverse)
+library(readxl)
+```
+
+Next, we can use the `read_tsv()` function to read the data from proteinGroups.txt into R
+```{r}
+mq_full <- read_tsv("../../data/proteinGroups.txt")
+```
+
+Wow! That's a lot of columns. Today we will only be plotting the MS1 ion intensity data, so let's select only the Intensity columns and the column with the Protein IDs. We also want to specify that we want the raw Intensity columns, not the "LFQ" Intensity columns.
+
+```{r}
+mq_intensities <- mq_full %>%
+  select(`Majority protein IDs`, 
+         contains("Intensity "), -contains("LFQ"))
+```
+
+Next, let's remove proteins that MaxQuant has labeled as "contaminants" using the CON_ prefix in the Majority protein IDs column. We can also remove proteins with the prefi REV_: these are proteins from the database of reversed protein sequences that MaxQuant uses to estimate a False-discovery rate for peptide-spectrum matches. We can add these filtering steps on to the existing pipe from the previous step
+
+```{r}
+mq_intensities <- mq_full %>%
+  select(`Majority protein IDs`, 
+         contains("Intensity "), -contains("LFQ")) %>%
+  filter(!str_detect(`Majority protein IDs`, "CON") &
+         !str_detect(`Majority protein IDs`, "REV"))
+```
+
+Great! 23 columns is much easier to work with than 231. For plotting our data though, it will be more useful to reformat our data into a "tidy" format with one observation per row, than a "wide" format, with multiple observations per row. (For a more detailed explanation of tidy data, see this [excellent blog post](https://garrettgman.github.io/tidying/).) We can accomplish this using `gather()` to gather the column names (keys) into a Sample column, and the intensity values into an Intensity column.
+
+```{r}
+mq_intensities <- mq_full %>%
+  select(`Majority protein IDs`, 
+         contains("Intensity "), -contains("LFQ")) %>%
+  filter(!str_detect(`Majority protein IDs`, "CON") &
+         !str_detect(`Majority protein IDs`, "REV")) %>%
+  gather(Sample, Intensity, -`Majority protein IDs`)
+```
+
+## Plotting the distribution of raw MS1 ion intensities
+
+To plot the intensities, we can construct a _kernel density plot_ using ggplot2 and the `geom_density()` geometry. A kernel density plot only requires one aesthetic mapping: x = Intensity. We will also add the mapping color = Sample to draw one density for each Sample. Lastly, we can make the densities transparent by setting alpha = 0.6 inside `geom_density()`.
+
+```{r}
+ggplot(mq_intensities, aes(x = Intensity, color = Sample)) +
+  geom_density(alpha = 0.6)
+```
+
+It's difficult to tell what is going on in this plot, since most of the observations seem to have a low intensity, but there are also observations with very high density. We can address this by log-transforming the data within our call to ggplot:
+```{r}
+ggplot(mq_intensities, aes(x = log10(Intensity), color = Sample)) +
+  geom_density(alpha = 0.6)
+```
+
+Beautiful! But there are still some problems with this data visualization. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
