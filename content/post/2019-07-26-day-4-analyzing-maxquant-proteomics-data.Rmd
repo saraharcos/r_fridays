@@ -12,7 +12,7 @@ link-citations: true
 
 # Processing proteomics data from MaxQuant
 
-The data we analyzed today is comes from an LC-MS/MS analysis of the human RNA-binding proteins that directly interact with incoming RNA virus genomes. You can use [this link](https://saraharcos.github.io/projects.html) to see more about how this data was generated _(manuscript under review)_.
+The data we analyzed today comes from an LC-MS/MS analysis of the human RNA-binding proteins that directly interact with incoming RNA virus genomes. You can use [this link](https://saraharcos.github.io/projects.html) to see more about how this data was generated _(manuscript under review)_.
 
 We tested three different timepoints and 2 different treatment conditions (+ and - interferon/IFNB1). For these conditions, we have three biological replicates. We also have two control biological replicates for each condition. Here is a summary of all the samples:
 
@@ -60,7 +60,7 @@ mq_intensities <- mq_full %>%
          contains("Intensity "), -contains("LFQ"))
 ```
 
-Next, let's remove proteins that MaxQuant has labeled as "contaminants" using the CON_ prefix in the Majority protein IDs column. We can also remove proteins with the prefix REV_: these are proteins from the database of reversed protein sequences that MaxQuant uses to estimate a false-discovery rate for peptide-spectrum matches. We can add these filtering steps to the existing pipe from the previous step
+Next, let's remove proteins that MaxQuant has labeled as "contaminants" using the CON_  prefix in the Majority protein IDs column. We can also remove proteins with the prefix REV_ : these are proteins from the database of reversed protein sequences that MaxQuant uses to estimate a false-discovery rate for peptide-spectrum matches. We can add these filtering steps to the existing pipe from the previous step
 
 ```{r}
 mq_intensities <- mq_full %>%
@@ -91,7 +91,7 @@ ggplot(mq_intensities, aes(x = Intensity, color = Sample)) +
 ```
 
 It's difficult to tell what is going on in this plot, since most of the observations seem to have a low intensity, but there are also observations with very high density. We can address this by log-transforming the data within our call to ggplot:
-```{r}
+```{r, warning=FALSE}
 ggplot(mq_intensities, aes(x = log10(Intensity), color = Sample)) +
   geom_density(alpha = 0.6)
 ```
@@ -126,13 +126,13 @@ mq_intensities_plusIFN <- mq_intensities_timepoints %>%
 
 Now let's make two kernel density plots, and color the densities by Timepoint. Since we want ggplot to __color__ by Timepoint but draw a KD for each replicate, we also have to specify the aesthetic mapping `group = Sample`. To make it clear which plot is which, let's also add a title to the plot using `labs()`.
 
-```{r}
+```{r, warning=FALSE}
 ggplot(mq_intensities_minusIFN, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
   geom_density(alpha = 0.6) +
   labs(title = "KD plot of raw MS1 ion intensities (untreated samples)")
 ```
 
-```{r}
+```{r, warning=FALSE}
 ggplot(mq_intensities_plusIFN, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
   geom_density(alpha = 0.6) +
   labs(title = "KD plot of raw MS1 ion intensities (+IFN pretreated samples)")
@@ -144,7 +144,7 @@ One more thing before we go: to see the +IFN treated and untreated samples in se
 
 Let's use the `facet_wrap()` function to plot our data from a single dataframe. First, we need to add another grouping column to specify +IFN pretreatment or untreated. 
 
-```{r}
+```{r, warning=FALSE}
 mq_intensities_facets <- mq_intensities_timepoints %>%
   mutate(Treatment = case_when(
     str_detect(Sample, "minus") ~ "Untreated",
@@ -154,7 +154,7 @@ mq_intensities_facets <- mq_intensities_timepoints %>%
 
 Now let's build the ggplot and add a `facet_wrap()` layer
 
-```{r}
+```{r, warning=FALSE}
 ggplot(mq_intensities_facets, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
   geom_density(alpha = 0.6) +
   facet_wrap(~Treatment)
@@ -162,7 +162,7 @@ ggplot(mq_intensities_facets, aes(x = log10(Intensity), color = Timepoint, group
 
 With distribution plots, it is it is often more useful to compare across the x axis than the y, so we can use the `nrow` argument in `facet_wrap()` to force ggplot to show the +IFN Pretreated and Untreated plots on top of one another, rather than next to one another.
 
-```{r}
+```{r, warning=FALSE}
 ggplot(mq_intensities_facets, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
   geom_density(alpha = 0.6) +
   facet_wrap(~Treatment, nrow = 2)

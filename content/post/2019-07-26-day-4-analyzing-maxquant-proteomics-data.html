@@ -14,7 +14,7 @@ link-citations: true
 
 <div id="processing-proteomics-data-from-maxquant" class="section level1">
 <h1>Processing proteomics data from MaxQuant</h1>
-<p>The data we analyzed today is comes from an LC-MS/MS analysis of the human RNA-binding proteins that directly interact with incoming RNA virus genomes. You can use <a href="https://saraharcos.github.io/projects.html">this link</a> to see more about how this data was generated <em>(manuscript under review)</em>.</p>
+<p>The data we analyzed today comes from an LC-MS/MS analysis of the human RNA-binding proteins that directly interact with incoming RNA virus genomes. You can use <a href="https://saraharcos.github.io/projects.html">this link</a> to see more about how this data was generated <em>(manuscript under review)</em>.</p>
 <p>We tested three different timepoints and 2 different treatment conditions (+ and - interferon/IFNB1). For these conditions, we have three biological replicates. We also have two control biological replicates for each condition. Here is a summary of all the samples:</p>
 <div id="experimental-conditions" class="section level3">
 <h3>Experimental Conditions</h3>
@@ -79,7 +79,7 @@ link-citations: true
 <pre class="r"><code>mq_intensities &lt;- mq_full %&gt;%
   select(`Majority protein IDs`, 
          contains(&quot;Intensity &quot;), -contains(&quot;LFQ&quot;))</code></pre>
-<p>Next, let’s remove proteins that MaxQuant has labeled as “contaminants” using the CON_ prefix in the Majority protein IDs column. We can also remove proteins with the prefix REV_: these are proteins from the database of reversed protein sequences that MaxQuant uses to estimate a false-discovery rate for peptide-spectrum matches. We can add these filtering steps to the existing pipe from the previous step</p>
+<p>Next, let’s remove proteins that MaxQuant has labeled as “contaminants” using the CON_ prefix in the Majority protein IDs column. We can also remove proteins with the prefix REV_ : these are proteins from the database of reversed protein sequences that MaxQuant uses to estimate a false-discovery rate for peptide-spectrum matches. We can add these filtering steps to the existing pipe from the previous step</p>
 <pre class="r"><code>mq_intensities &lt;- mq_full %&gt;%
   select(`Majority protein IDs`, 
          contains(&quot;Intensity &quot;), -contains(&quot;LFQ&quot;)) %&gt;%
@@ -102,7 +102,6 @@ link-citations: true
 <p>It’s difficult to tell what is going on in this plot, since most of the observations seem to have a low intensity, but there are also observations with very high density. We can address this by log-transforming the data within our call to ggplot:</p>
 <pre class="r"><code>ggplot(mq_intensities, aes(x = log10(Intensity), color = Sample)) +
   geom_density(alpha = 0.6)</code></pre>
-<pre><code>## Warning: Removed 14500 rows containing non-finite values (stat_density).</code></pre>
 <p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <p>Beautiful! But there are still some problems with this data visualization. Right now, we have a different color for each individual replicate that we tested. It would be more useful if we had a different color for each timepoint that was tested (or control).</p>
 <p>We are also plotting both the +IFN pretreated and untreated samples on the same plot. Comparing both a condition and a time-course in the same plot can be overwhelming, so let’s make two separate plots for the +IFN pretreated and untreated samples.</p>
@@ -127,12 +126,10 @@ mq_intensities_plusIFN &lt;- mq_intensities_timepoints %&gt;%
 <pre class="r"><code>ggplot(mq_intensities_minusIFN, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
   geom_density(alpha = 0.6) +
   labs(title = &quot;KD plot of raw MS1 ion intensities (untreated samples)&quot;)</code></pre>
-<pre><code>## Warning: Removed 7348 rows containing non-finite values (stat_density).</code></pre>
 <p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <pre class="r"><code>ggplot(mq_intensities_plusIFN, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
   geom_density(alpha = 0.6) +
   labs(title = &quot;KD plot of raw MS1 ion intensities (+IFN pretreated samples)&quot;)</code></pre>
-<pre><code>## Warning: Removed 7152 rows containing non-finite values (stat_density).</code></pre>
 <p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>Great! From these plots we can see that the control (Ctr) samples have consistently lower MS1 ion intensities than the experimental samples. This might invalidate some of the assumptions in the LFQ algorithm that MaxQuant uses, so using this data to estimate protein abundance would not be straightforward.</p>
 <p>One more thing before we go: to see the +IFN treated and untreated samples in separate plots we split the actual dataframe into two separate dataframes. ggplot2 has a useful function called “faceting” that would allow us to keep all of our data in a single dataframe.</p>
@@ -146,13 +143,11 @@ mq_intensities_plusIFN &lt;- mq_intensities_timepoints %&gt;%
 <pre class="r"><code>ggplot(mq_intensities_facets, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
   geom_density(alpha = 0.6) +
   facet_wrap(~Treatment)</code></pre>
-<pre><code>## Warning: Removed 14500 rows containing non-finite values (stat_density).</code></pre>
 <p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <p>With distribution plots, it is it is often more useful to compare across the x axis than the y, so we can use the <code>nrow</code> argument in <code>facet_wrap()</code> to force ggplot to show the +IFN Pretreated and Untreated plots on top of one another, rather than next to one another.</p>
 <pre class="r"><code>ggplot(mq_intensities_facets, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
   geom_density(alpha = 0.6) +
   facet_wrap(~Treatment, nrow = 2)</code></pre>
-<pre><code>## Warning: Removed 14500 rows containing non-finite values (stat_density).</code></pre>
 <p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <p>Since the x-axes for the plots are the same scale, we can now easily see that the distributions of Intensities between +IFN Pretreated and Untreated are fairly similar.</p>
 </div>
