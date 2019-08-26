@@ -1,0 +1,177 @@
+---
+title: 'Day 4: Analyzing MaxQuant proteomics data'
+author: Sarah Arcos
+date: '2019-07-26'
+slug: day-4-analyzing-maxquant-proteomics-data
+categories: []
+tags:
+  - proteomics
+bibliography: [rfridays.bib]
+link-citations: true
+---
+
+
+
+<div id="processing-proteomics-data-from-maxquant" class="section level1">
+<h1>Processing proteomics data from MaxQuant</h1>
+<p>The data we analyzed today is comes from an LC-MS/MS analysis of the human RNA-binding proteins that directly interact with incoming RNA virus genomes. You can use <a href="https://saraharcos.github.io/projects.html">this link</a> to see more about how this data was generated <em>(manuscript under review)</em>.</p>
+<p>We tested three different timepoints and 2 different treatment conditions (+ and - interferon/IFNB1). For these conditions, we have three biological replicates. We also have two control biological replicates for each condition. Here is a summary of all the samples:</p>
+<div id="experimental-conditions" class="section level3">
+<h3>Experimental Conditions</h3>
+<p><em>3 replicates each</em></p>
+<ul>
+<li>0 hours post infection (hpi), +IFN pretreatment</li>
+<li>1 hpi, +IFN pretreatment</li>
+<li>3 hpi, +IFN pretreatment</li>
+<li>0 hpi, untreated</li>
+<li>1 hpi, untreated</li>
+<li>3 hpi, untreated</li>
+</ul>
+</div>
+<div id="control-conditions-called-no4su-in-the-data" class="section level3">
+<h3>Control Conditions (called “no4SU” in the data)</h3>
+<p><em>2 replicates each</em></p>
+<ul>
+<li>+IFN pretreatment</li>
+<li>untreated</li>
+</ul>
+<p>The raw LC-MS/MS data was processed using <a href="https://www.maxquant.org">MaxQuant</a> (<span class="citation">Cox and Mann (<a href="#ref-Cox:2008ir">2008</a>)</span>), which outputs a table of peptide-spectrum matches called proteinGroups.txt. Today, we will:</p>
+<ol style="list-style-type: decimal">
+<li>Read in proteinGroups.txt</li>
+<li>Plot the distribution of raw MS1 ion intensities</li>
+<li>Color the plot by the timepoint tested</li>
+</ol>
+<p>These plots will help us determine whether the MS1 ion intensities are distributed normally, and whether they can safely be used as a semi-quantitative measure of protein abundance.</p>
+</div>
+<div id="reading-in-proteingroups.txt" class="section level2">
+<h2>Reading in proteinGroups.txt</h2>
+<p>First, let’s load the tidyverse package to our R session.</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<p>Next, we can use the <code>read_tsv()</code> function to read the data from proteinGroups.txt into R</p>
+<pre class="r"><code>mq_full &lt;- read_tsv(&quot;../../data/proteinGroups.txt&quot;)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_double(),
+##   `Protein IDs` = col_character(),
+##   `Majority protein IDs` = col_character(),
+##   `Peptide counts (all)` = col_character(),
+##   `Peptide counts (razor+unique)` = col_character(),
+##   `Peptide counts (unique)` = col_character(),
+##   `Fasta headers` = col_character(),
+##   `Sequence lengths` = col_character(),
+##   `Identification type 0hr_minus_rep1` = col_character(),
+##   `Identification type 0hr_minus_rep2` = col_character(),
+##   `Identification type 0hr_minus_rep3` = col_character(),
+##   `Identification type 0hr_plus_rep1` = col_character(),
+##   `Identification type 0hr_plus_rep2` = col_character(),
+##   `Identification type 0hr_plus_rep3` = col_character(),
+##   `Identification type 1hr_minus_rep1` = col_character(),
+##   `Identification type 1hr_minus_rep2` = col_character(),
+##   `Identification type 1hr_minus_rep3` = col_character(),
+##   `Identification type 1hr_plus_rep1` = col_character(),
+##   `Identification type 1hr_plus_rep2` = col_character(),
+##   `Identification type 1hr_plus_rep3` = col_character(),
+##   `Identification type 3hr_minus_rep1` = col_character()
+##   # ... with 20 more columns
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<p>Wow! That’s a lot of columns. Today we will only be plotting the MS1 ion intensity data, so let’s select only the Intensity columns and the column with the Protein IDs. We also want to specify that we want the raw Intensity columns, not the “LFQ” (Label-Free Quantification) Intensity columns.</p>
+<pre class="r"><code>mq_intensities &lt;- mq_full %&gt;%
+  select(`Majority protein IDs`, 
+         contains(&quot;Intensity &quot;), -contains(&quot;LFQ&quot;))</code></pre>
+<p>Next, let’s remove proteins that MaxQuant has labeled as “contaminants” using the CON_ prefix in the Majority protein IDs column. We can also remove proteins with the prefix REV_: these are proteins from the database of reversed protein sequences that MaxQuant uses to estimate a false-discovery rate for peptide-spectrum matches. We can add these filtering steps to the existing pipe from the previous step</p>
+<pre class="r"><code>mq_intensities &lt;- mq_full %&gt;%
+  select(`Majority protein IDs`, 
+         contains(&quot;Intensity &quot;), -contains(&quot;LFQ&quot;)) %&gt;%
+  filter(!str_detect(`Majority protein IDs`, &quot;CON&quot;) &amp;
+         !str_detect(`Majority protein IDs`, &quot;REV&quot;))</code></pre>
+<p>Great! 23 columns is much easier to work with than 231. For plotting our data though, it will be more useful to reformat our data into a “tidy” format with one observation per row (for a more detailed explanation of tidy data, see this <a href="https://garrettgman.github.io/tidying/">excellent blog post</a>. We can accomplish this using <code>gather()</code> to gather the column names (keys) into a Sample column, and the intensities (values) into an Intensity column.</p>
+<pre class="r"><code>mq_intensities &lt;- mq_full %&gt;%
+  select(`Majority protein IDs`, 
+         contains(&quot;Intensity &quot;), -contains(&quot;LFQ&quot;)) %&gt;%
+  filter(!str_detect(`Majority protein IDs`, &quot;CON&quot;) &amp;
+         !str_detect(`Majority protein IDs`, &quot;REV&quot;)) %&gt;%
+  gather(Sample, Intensity, -`Majority protein IDs`)</code></pre>
+</div>
+<div id="plotting-the-distribution-of-raw-ms1-ion-intensities" class="section level2">
+<h2>Plotting the distribution of raw MS1 ion intensities</h2>
+<p>To plot the intensities, we can construct a <strong>kernel density plot</strong> using ggplot2 and the <code>geom_density()</code> geometry. A kernel density plot only requires one aesthetic mapping: <code>x = Intensity</code>. We will also add the mapping <code>color = Sample</code> to draw one density for each Sample. Lastly, we can make the densities transparent by setting alpha = 0.6 inside <code>geom_density()</code>.</p>
+<pre class="r"><code>ggplot(mq_intensities, aes(x = Intensity, color = Sample)) +
+  geom_density(alpha = 0.6)</code></pre>
+<p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>It’s difficult to tell what is going on in this plot, since most of the observations seem to have a low intensity, but there are also observations with very high density. We can address this by log-transforming the data within our call to ggplot:</p>
+<pre class="r"><code>ggplot(mq_intensities, aes(x = log10(Intensity), color = Sample)) +
+  geom_density(alpha = 0.6)</code></pre>
+<pre><code>## Warning: Removed 14500 rows containing non-finite values (stat_density).</code></pre>
+<p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>Beautiful! But there are still some problems with this data visualization. Right now, we have a different color for each individual replicate that we tested. It would be more useful if we had a different color for each timepoint that was tested (or control).</p>
+<p>We are also plotting both the +IFN pretreated and untreated samples on the same plot. Comparing both a condition and a time-course in the same plot can be overwhelming, so let’s make two separate plots for the +IFN pretreated and untreated samples.</p>
+</div>
+<div id="coloring-the-plot-by-the-timepoint-tested" class="section level2">
+<h2>Coloring the plot by the timepoint tested</h2>
+<p>First, let’s add a new column called Timepoint to group the data by timepoint or control.</p>
+<pre class="r"><code>mq_intensities_timepoints &lt;- mq_intensities %&gt;%
+  #Remove the word Intensity from the Sample column
+  mutate(Sample = str_replace(Sample, &quot;Intensity &quot;, &quot;&quot;)) %&gt;%
+  #Change &quot;no4SU&quot; to &quot;Ctr&quot; to make it clear that it is the control
+  mutate(Sample = str_replace(Sample, &quot;no4SU&quot;, &quot;Ctr&quot;)) %&gt;%
+  #Make a new column called Timepoint
+  mutate(Timepoint = str_sub(Sample, 1, 3))</code></pre>
+<p>Perfect. Now we can split the dataframe into two, one for +IFN pretreatment, and one for untreated:</p>
+<pre class="r"><code>mq_intensities_minusIFN &lt;- mq_intensities_timepoints %&gt;%
+  filter(str_detect(Sample, &quot;minus&quot;))
+
+mq_intensities_plusIFN &lt;- mq_intensities_timepoints %&gt;%
+  filter(str_detect(Sample, &quot;plus&quot;))</code></pre>
+<p>Now let’s make two kernel density plots, and color the densities by Timepoint. Since we want ggplot to <strong>color</strong> by Timepoint but draw a KD for each replicate, we also have to specify the aesthetic mapping <code>group = Sample</code>. To make it clear which plot is which, let’s also add a title to the plot using <code>labs()</code>.</p>
+<pre class="r"><code>ggplot(mq_intensities_minusIFN, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
+  geom_density(alpha = 0.6) +
+  labs(title = &quot;KD plot of raw MS1 ion intensities (untreated samples)&quot;)</code></pre>
+<pre><code>## Warning: Removed 7348 rows containing non-finite values (stat_density).</code></pre>
+<p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(mq_intensities_plusIFN, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
+  geom_density(alpha = 0.6) +
+  labs(title = &quot;KD plot of raw MS1 ion intensities (+IFN pretreated samples)&quot;)</code></pre>
+<pre><code>## Warning: Removed 7152 rows containing non-finite values (stat_density).</code></pre>
+<p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>Great! From these plots we can see that the control (Ctr) samples have consistently lower MS1 ion intensities than the experimental samples. This might invalidate some of the assumptions in the LFQ algorithm that MaxQuant uses, so using this data to estimate protein abundance would not be straightforward.</p>
+<p>One more thing before we go: to see the +IFN treated and untreated samples in separate plots we split the actual dataframe into two separate dataframes. ggplot2 has a useful function called “faceting” that would allow us to keep all of our data in a single dataframe.</p>
+<p>Let’s use the <code>facet_wrap()</code> function to plot our data from a single dataframe. First, we need to add another grouping column to specify +IFN pretreatment or untreated.</p>
+<pre class="r"><code>mq_intensities_facets &lt;- mq_intensities_timepoints %&gt;%
+  mutate(Treatment = case_when(
+    str_detect(Sample, &quot;minus&quot;) ~ &quot;Untreated&quot;,
+    str_detect(Sample, &quot;plus&quot;) ~ &quot;+IFN Pretreated&quot;
+  ))</code></pre>
+<p>Now let’s build the ggplot and add a <code>facet_wrap()</code> layer</p>
+<pre class="r"><code>ggplot(mq_intensities_facets, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
+  geom_density(alpha = 0.6) +
+  facet_wrap(~Treatment)</code></pre>
+<pre><code>## Warning: Removed 14500 rows containing non-finite values (stat_density).</code></pre>
+<p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>With distribution plots, it is it is often more useful to compare across the x axis than the y, so we can use the <code>nrow</code> argument in <code>facet_wrap()</code> to force ggplot to show the +IFN Pretreated and Untreated plots on top of one another, rather than next to one another.</p>
+<pre class="r"><code>ggplot(mq_intensities_facets, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
+  geom_density(alpha = 0.6) +
+  facet_wrap(~Treatment, nrow = 2)</code></pre>
+<pre><code>## Warning: Removed 14500 rows containing non-finite values (stat_density).</code></pre>
+<p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>Since the x-axes for the plots are the same scale, we can now easily see that the distributions of Intensities between +IFN Pretreated and Untreated are fairly similar.</p>
+</div>
+</div>
+<div id="wrap-up" class="section level1">
+<h1>Wrap Up</h1>
+<p>Woo! Here is what we accomplished today:</p>
+<ol style="list-style-type: decimal">
+<li>Read MaxQuant proteomics data in to R</li>
+<li>Plotted the distribution of the data using a kernel density plot</li>
+<li>Separated the plots into +IFN pretreated and untreated samples</li>
+<li>Colored the kernel densities by the Timepoint tested</li>
+<li>Hypothesized that the MaxQuant LFQ algorithm will not accurately estimate protein abundance with this dataset.</li>
+<li>Used <code>facet_wrap()</code> to plot both +IFN pretreated and untreated samples separately but in the same ggplot.</li>
+</ol>
+<p><em>As always, if you have any questions don’t hesitate to <a href="https://saraharcos.github.io/contact.html">email me</a>.</em></p>
+<div id="refs" class="references">
+<div id="ref-Cox:2008ir">
+<p>Cox, Jürgen, and Matthias Mann. 2008. “MaxQuant enables high peptide identification rates, individualized p.p.b.-range mass accuracies and proteome-wide protein quantification.” <em>Nature Biotechnology</em> 26 (12): 1367–72.</p>
+</div>
+</div>
+</div>
