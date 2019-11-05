@@ -1,0 +1,159 @@
+---
+title: 'R fridays #6: Visualizing RNA-seq data'
+author: Sarah Arcos
+date: '2019-08-09'
+slug: r-fridays-6
+categories: []
+tags:
+  - RNA-seq
+---
+
+
+
+<div id="vizualizing-gene-expression-changes-from-rna-seq-experiments" class="section level1">
+<h1>Vizualizing gene expression changes from RNA-seq experiments</h1>
+<p>Hey everyone! Today we will be discussing how to import and visualize results from RNA-seq experiments. The code below was generously provided by <a href="https://lab.vanderbilt.edu/ascano-lab/person/katherine-rothamel/">Katie Rothamel</a> of the Ascano lab.</p>
+<div id="the-experiment" class="section level2">
+<h2>The experiment</h2>
+<p>The example dataset was simulated from a real experiment comparing RNA expression levels from two conditions (treated and untreated) in a human monocyte cell line (THP1). The cells were treated with cGAMP, an agonist of the STING signaling pathway, to stimulate an innate immune response. The treatment was also performed in a timecourse, with 0 hours representing the untreated condition, and timepoints at 0.5, 4, and 16 hours post-treatment with cGAMP. Each condition has three biological replicates.</p>
+</div>
+<div id="the-data" class="section level2">
+<h2>The data</h2>
+<p>RNA-seq data undergoes a series of processing steps before it can be visualized in R:</p>
+<ol style="list-style-type: decimal">
+<li>Quality control of reads (sequence length, GC content, adapter content, etc.)</li>
+<li>Trimming adapters</li>
+<li>Removal of PCR duplicates</li>
+<li>Alignment to a reference genome/transcriptome</li>
+<li>Quantification and normalization</li>
+</ol>
+<p>The input data for this analysis is quantified and normalized RNA-seq expression data. The unit for the data is FPKM (fragments per kilobase per million), you can learn more about how this value was calculated from <a href="http://www.arrayserver.com/wiki/index.php?title=RPKM">this helpful post</a>. Specifically, Katie used <a href="http://cole-trapnell-lab.github.io/cufflinks/cuffdiff/">Cuffdiff</a> from the <a href="http://cole-trapnell-lab.github.io/cufflinks/">Cufflinks</a> software to quantify and normalize her data, and the input file for this analysis is the “.fpkm_tracking” file from Cuffdiff.</p>
+</div>
+<div id="loading-the-data-into-r" class="section level2">
+<h2>Loading the data into R</h2>
+<p>Katie used the tidyverse packages to load and manipulate her data in R.</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
+## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
+## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
+## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
+<pre><code>## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<p>Specifically, she used the <code>read_tsv()</code> function to read in her data and the <code>select()</code> function to select columns that she was interested in. She connected these two commands with a <strong>pipe</strong> (<code>%&gt;%</code>) to send the output of <code>read_tsv()</code> to the first argument of <code>select()</code>.</p>
+<pre class="r"><code>rna_seq &lt;- read_tsv(&quot;../../data/cds.fpkm_tracking&quot;) %&gt;%
+  select(gene_short_name, THP1_0H_1_1_FPKM, THP1_0H_2_1_FPKM, THP1_0H_3_1_FPKM,
+         THP1_0_5H_1_1_FPKM, THP1_0_5H_2_1_FPKM, THP1_0_5H_3_1_FPKM,
+         THP1_4H_1_1_FPKM, THP1_4H_2_1_FPKM, THP1_4H_3_1_FPKM, 
+         THP1_16H_1_1_FPKM, THP1_16H_2_1_FPKM, THP1_16H_3_1_FPKM)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_double(),
+##   tracking_id = col_character(),
+##   class_code = col_character(),
+##   nearest_ref_id = col_character(),
+##   gene_id = col_character(),
+##   gene_short_name = col_character(),
+##   tss_id = col_character(),
+##   locus = col_character(),
+##   length = col_character(),
+##   coverage = col_character(),
+##   THP1_0H_1_1_status = col_character(),
+##   THP1_0H_3_1_status = col_character(),
+##   THP1_0_5H_2_1_status = col_character(),
+##   THP1_16H_1_1_status = col_character(),
+##   THP1_16H_3_1_status = col_character(),
+##   THP1_4H_2_1_status = col_character(),
+##   THP1_0H_1_2_status = col_character(),
+##   THP1_0H_3_2_status = col_character(),
+##   THP1_0_5H_2_2_status = col_character(),
+##   THP1_16H_1_2_status = col_character(),
+##   THP1_16H_3_2_status = col_character()
+##   # ... with 13 more columns
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<p>The columns she selected are the gene name (<code>gene_short_name</code>) and the FPKM values for all of her timepoints and conditions. <code>THP1_0H_1_1_FPKM</code> refers to biological replicate 1 of the unstimulated condition, <code>THP1_0H_2_1_FPKM</code> referse to replicate 2, and so on.</p>
+</div>
+<div id="cleaning-the-data" class="section level2">
+<h2>Cleaning the data</h2>
+<p>After loading in the data, Katie noticed that some genes had multiple FPKM values for the same experiment. This is due to different transcript isoforms. She chose to handle this situation by choosing the maximum FPKM value for a given gene. Another solution would have been to use the sum of all isoform FPKMs for a given gene. Either way, decisions like this are important to note in a methods section when the data is published.</p>
+<p>Katie used <code>summarize_all()</code> which is a version of the <code>summarize()</code> dplyr function that we’ve covered in previous R fridays. <code>summarize_all()</code> applies a summarizing function (like max or mean) to every variable (column). Check out the commented code below to see how <code>summarize_all()</code> simplified the code compared to using just <code>summarize()</code>.</p>
+<pre class="r"><code>expressiondata_max &lt;- rna_seq %&gt;%
+  group_by(gene_short_name) %&gt;%
+  summarize_all(max)
+
+
+# expressiondata_max &lt;- rna_seq %&gt;%
+#   group_by(gene_short_name) %&gt;%
+#   summarize(THP1_0H_1_1_FPKM = max(THP1_0H_1_1_FPKM), 
+#             THP1_0H_2_1_FPKM = max(THP1_0H_2_1_FPKM), 
+#             THP1_0H_3_1_FPKM = max(THP1_0H_3_1_FPKM),
+#             THP1_0_5H_1_1_FPKM = max(THP1_0_5H_1_1_FPKM),
+#             THP1_0_5H_2_1_FPKM = max(THP1_0_5H_2_1_FPKM),
+#             THP1_0_5H_3_1_FPKM = max(THP1_0_5H_3_1_FPKM),
+#             THP1_4H_1_1_FPKM = max(THP1_4H_1_1_FPKM),
+#             THP1_4H_2_1_FPKM = max(THP1_4H_2_1_FPKM),
+#             THP1_4H_3_1_FPKM = max(THP1_4H_3_1_FPKM),
+#             THP1_16H_1_1_FPKM = max(THP1_16H_1_1_FPKM),
+#             THP1_16H_2_1_FPKM = max(THP1_16H_2_1_FPKM),
+#             THP1_16H_3_1_FPKM = max(THP1_16H_3_1_FPKM))</code></pre>
+<p>Then Katie wanted to remove lowly-expressed genes. Removal of lowly-expressed genes can <a href="https://www.pnas.org/content/107/21/9546">increase statistical power</a> when looking for differential expression by decreasing the number of tests performed, and thus decreasing the multiple testing correction. Multiple R packages implement methods of removing lowly expressed genes, such as <a href="https://bioconductor.org/packages/release/bioc/html/DESeq.html">DEseq</a> and <a href="https://bioconductor.org/packages/release/bioc/html/edgeR.html">edgeR</a>. For this initial exploratory analysis though, Katie decided to simply threshold the genes by FPKM. She calculated the total FPKM value for each gene among all conditions, and kept genes with a total FPKM &gt; 12.</p>
+<pre class="r"><code>expressiondata &lt;- expressiondata_max %&gt;%
+  mutate(rowsum_uniq = rowSums(.[2:13])) %&gt;%
+  filter(rowsum_uniq &gt; 12)</code></pre>
+<p>Lastly, Katie log2-transformed the FPKM values to bring them closer to a normal distribution. She used <code>mutate_at()</code> which is similar to <code>summarize_all()</code>, except that you can specify which variables to you want to apply the function to.</p>
+<pre class="r"><code>expressiondata_log &lt;- expressiondata %&gt;%
+  mutate_at(2:13, log2)</code></pre>
+</div>
+<div id="exploring-the-data" class="section level2">
+<h2>Exploring the data</h2>
+<p>Katie next compared the FPKM values in the different conditions to see whether the treatment had any effect on gene expression.</p>
+<p>To do this she transformed the data into a “narrow” format using <code>gather()</code>, and then added a grouping variable for each timepoint (see <a href="http://r-fridays.rbind.io/2019/07/26/day-4-analyzing-maxquant-proteomics-data/">this post</a> for a more detailed explanation). Then she calculated the mean expression for each gene among the biological replicates, and then <code>spread()</code> the data back into a wide format.</p>
+<pre class="r"><code>average_expression &lt;- expressiondata_log %&gt;%
+  #removing an unnecessary variable
+  select(-rowsum_uniq) %&gt;%
+  gather(key = sample, value = expression, -gene_short_name) %&gt;%
+  mutate(timepoint = str_extract(string = sample, pattern = &quot;THP1_[^H]*H&quot;)) %&gt;%
+  group_by(gene_short_name, timepoint) %&gt;%
+  summarize(meanexpression = mean(expression)) %&gt;%
+  #putting the data back into a wide format
+  spread(key = timepoint, value = meanexpression)</code></pre>
+<p>From this data format, it is easy to compare different conditions using ggplot:</p>
+<pre class="r"><code>ggplot(average_expression, aes(THP1_0H, THP1_16H)) +
+  geom_point()</code></pre>
+<p><img src="/post/2019-08-09-r-fridays-6_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>Great! There are multiple genes with higher or lower expression after 16 hours of treatment with cGAMP. We can construct plots comparing each timepoint to the untreated condition, and then stitch them together using the <code>ggarrange()</code> function from a package called <a href="https://cran.r-project.org/web/packages/ggpubr/index.html">ggpubr</a>. I also added the setting <code>alpha = 0.5</code> to the <code>geom_point()</code> layer to address the over-plotting.</p>
+<pre class="r"><code>library(ggpubr)</code></pre>
+<pre><code>## Loading required package: magrittr</code></pre>
+<pre><code>## 
+## Attaching package: &#39;magrittr&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     set_names</code></pre>
+<pre><code>## The following object is masked from &#39;package:tidyr&#39;:
+## 
+##     extract</code></pre>
+<pre class="r"><code>hour0.5 &lt;- ggplot(average_expression, aes(THP1_0H, THP1_0_5H)) +
+  geom_point(alpha = 0.5)
+
+hour4 &lt;- ggplot(average_expression, aes(THP1_0H, THP1_4H)) +
+  geom_point(alpha = 0.5)
+
+hour16 &lt;- ggplot(average_expression, aes(THP1_0H, THP1_16H)) +
+  geom_point(alpha = 0.5)
+
+timepoints &lt;- ggarrange(hour0.5, hour4, hour16,
+                    labels = c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;),
+                    ncol = 3)
+timepoints</code></pre>
+<p><img src="/post/2019-08-09-r-fridays-6_files/figure-html/unnamed-chunk-8-1.png" width="1728" /></p>
+<p>From this brief data cleaning and visualization, we can see that many different genes are differentially expressed upon treatment with cGAMP over time.</p>
+<p>Some future steps might be to perform hypothesis testing to determine which genes are actually differentially expressed, and whether there are any patterns in gene expression across the timecourse.</p>
+</div>
+</div>
+<div id="wrap-up" class="section level1">
+<h1>Wrap-up</h1>
+<p>Today Katie walked us through an initial visualization of RNA-seq data using R. She took the “.fpkm_tracking” file that is output from <a href="http://cole-trapnell-lab.github.io/cufflinks/cuffdiff/">Cuffdiff</a>, and then cleaned and visualized the data using <a href="https://dplyr.tidyverse.org">dplyr</a> and <a href="https://ggplot2.tidyverse.org">ggplot2</a>. Two new dplyr function covered today were <code>summarize_all()</code> and <code>mutate_at()</code>, which are the “scoped” versions of <code>summarize()</code> and <code>mutate()</code>. They allow for easy application of a function like <code>log2()</code> or <code>max()</code> to all or a selection of columns in one go.</p>
+<p><em>As always, if you have any questions don’t hesitate to <a href="https://saraharcos.github.io/contact.html">email me</a>.</em></p>
+</div>

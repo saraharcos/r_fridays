@@ -90,7 +90,7 @@ ggplot(mq_intensities, aes(x = Intensity, color = Sample)) +
   geom_density(alpha = 0.6)
 ```
 
-It's difficult to tell what is going on in this plot, since most of the observations seem to have a low intensity, but there are also observations with very high density. We can address this by log-transforming the data within our call to ggplot:
+It's difficult to tell what is going on in this plot, since most of the observations seem to have a low intensity, but there are also observations with very high intensity. We can address this by log-transforming the data within our call to ggplot:
 ```{r, warning=FALSE}
 ggplot(mq_intensities, aes(x = log10(Intensity), color = Sample)) +
   geom_density(alpha = 0.6)
@@ -140,7 +140,7 @@ ggplot(mq_intensities_plusIFN, aes(x = log10(Intensity), color = Timepoint, grou
 
 Great! From these plots we can see that the control (Ctr) samples have consistently lower MS1 ion intensities than the experimental samples. This might invalidate some of the assumptions in the LFQ algorithm that MaxQuant uses, so using this data to estimate protein abundance would not be straightforward.
 
-One more thing before we go: to see the +IFN treated and untreated samples in separate plots we split the actual dataframe into two separate dataframes. ggplot2 has a useful function called "faceting" that would allow us to keep all of our data in a single dataframe.
+One more thing before we go: to see the +IFN treated and untreated samples in separate plots above we split the actual dataframe into two separate dataframes. ggplot2 has a useful function called "faceting" that would allow us to keep all of our data in a single dataframe.
 
 Let's use the `facet_wrap()` function to plot our data from a single dataframe. First, we need to add another grouping column to specify +IFN pretreatment or untreated. 
 
@@ -160,7 +160,7 @@ ggplot(mq_intensities_facets, aes(x = log10(Intensity), color = Timepoint, group
   facet_wrap(~Treatment)
 ```
 
-With distribution plots, it is it is often more useful to compare across the x axis than the y, so we can use the `nrow` argument in `facet_wrap()` to force ggplot to show the +IFN Pretreated and Untreated plots on top of one another, rather than next to one another.
+With distribution plots, it can be more useful to compare across the x axis than the y, so we can use the `nrow` argument in `facet_wrap()` to force ggplot to show the +IFN Pretreated and Untreated plots on top of one another, rather than next to one another.
 
 ```{r, warning=FALSE}
 ggplot(mq_intensities_facets, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +

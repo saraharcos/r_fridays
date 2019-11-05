@@ -99,7 +99,7 @@ link-citations: true
 <pre class="r"><code>ggplot(mq_intensities, aes(x = Intensity, color = Sample)) +
   geom_density(alpha = 0.6)</code></pre>
 <p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
-<p>It’s difficult to tell what is going on in this plot, since most of the observations seem to have a low intensity, but there are also observations with very high density. We can address this by log-transforming the data within our call to ggplot:</p>
+<p>It’s difficult to tell what is going on in this plot, since most of the observations seem to have a low intensity, but there are also observations with very high intensity. We can address this by log-transforming the data within our call to ggplot:</p>
 <pre class="r"><code>ggplot(mq_intensities, aes(x = log10(Intensity), color = Sample)) +
   geom_density(alpha = 0.6)</code></pre>
 <p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
@@ -132,7 +132,7 @@ mq_intensities_plusIFN &lt;- mq_intensities_timepoints %&gt;%
   labs(title = &quot;KD plot of raw MS1 ion intensities (+IFN pretreated samples)&quot;)</code></pre>
 <p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>Great! From these plots we can see that the control (Ctr) samples have consistently lower MS1 ion intensities than the experimental samples. This might invalidate some of the assumptions in the LFQ algorithm that MaxQuant uses, so using this data to estimate protein abundance would not be straightforward.</p>
-<p>One more thing before we go: to see the +IFN treated and untreated samples in separate plots we split the actual dataframe into two separate dataframes. ggplot2 has a useful function called “faceting” that would allow us to keep all of our data in a single dataframe.</p>
+<p>One more thing before we go: to see the +IFN treated and untreated samples in separate plots above we split the actual dataframe into two separate dataframes. ggplot2 has a useful function called “faceting” that would allow us to keep all of our data in a single dataframe.</p>
 <p>Let’s use the <code>facet_wrap()</code> function to plot our data from a single dataframe. First, we need to add another grouping column to specify +IFN pretreatment or untreated.</p>
 <pre class="r"><code>mq_intensities_facets &lt;- mq_intensities_timepoints %&gt;%
   mutate(Treatment = case_when(
@@ -144,7 +144,7 @@ mq_intensities_plusIFN &lt;- mq_intensities_timepoints %&gt;%
   geom_density(alpha = 0.6) +
   facet_wrap(~Treatment)</code></pre>
 <p><img src="/post/2019-07-26-day-4-analyzing-maxquant-proteomics-data_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
-<p>With distribution plots, it is it is often more useful to compare across the x axis than the y, so we can use the <code>nrow</code> argument in <code>facet_wrap()</code> to force ggplot to show the +IFN Pretreated and Untreated plots on top of one another, rather than next to one another.</p>
+<p>With distribution plots, it can be more useful to compare across the x axis than the y, so we can use the <code>nrow</code> argument in <code>facet_wrap()</code> to force ggplot to show the +IFN Pretreated and Untreated plots on top of one another, rather than next to one another.</p>
 <pre class="r"><code>ggplot(mq_intensities_facets, aes(x = log10(Intensity), color = Timepoint, group = Sample)) +
   geom_density(alpha = 0.6) +
   facet_wrap(~Treatment, nrow = 2)</code></pre>
