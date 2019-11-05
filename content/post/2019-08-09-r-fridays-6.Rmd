@@ -25,7 +25,7 @@ RNA-seq data undergoes a series of processing steps before it can be visualized 
   4. Alignment to a reference genome/transcriptome
   5. Quantification and normalization
 
-The input data for this analysis is quantified and normalized RNA-seq expression data. The unit for the data is FPKM (fragments per kilobase per million), you can learn more about how this value was calculated from [this helpful post](http://www.arrayserver.com/wiki/index.php?title=RPKM). Specifically, Katie used [Cuffdiff](http://cole-trapnell-lab.github.io/cufflinks/cuffdiff/) from the [Cufflinks](http://cole-trapnell-lab.github.io/cufflinks/) software to quantify and normalize her data, and the input file for this analysis is the ".fpkm_tracking" file from Cuffdiff.
+The input data for this analysis is quantified and normalized RNA-seq expression data. The unit for the data is FPKM (fragments per kilobase per million), you can learn more about how this value was calculated from [this helpful post](http://www.arrayserver.com/wiki/index.php?title=RPKM). Specifically, Katie used [Cuffdiff](http://cole-trapnell-lab.github.io/cufflinks/cuffdiff/) from the [Cufflinks](http://cole-trapnell-lab.github.io/cufflinks/) software to quantify and normalize her data, and the input file for this analysis is the "cds.fpkm_tracking" file from Cuffdiff.
 
 ## Loading the data into R
 
@@ -141,6 +141,6 @@ Some future steps might be to perform hypothesis testing to determine which gene
 
 # Wrap-up
 
-Today Katie walked us through an initial visualization of RNA-seq data using R. She took the ".fpkm_tracking" file that is output from [Cuffdiff](http://cole-trapnell-lab.github.io/cufflinks/cuffdiff/), and then cleaned and visualized the data using [dplyr](https://dplyr.tidyverse.org) and [ggplot2](https://ggplot2.tidyverse.org). Two new dplyr function covered today were `summarize_all()` and `mutate_at()`, which are the "scoped" versions of `summarize()` and `mutate()`. They allow for easy application of a function like `log2()` or `max()` to all or a selection of columns in one go.
+Today Katie walked us through an initial visualization of RNA-seq data using R. She took the "cds.fpkm_tracking" file that is output from [Cuffdiff](http://cole-trapnell-lab.github.io/cufflinks/cuffdiff/), and then cleaned and visualized the data using [dplyr](https://dplyr.tidyverse.org) and [ggplot2](https://ggplot2.tidyverse.org). Two new dplyr function covered today were `summarize_all()` and `mutate_at()`, which are the "scoped" versions of `summarize()` and `mutate()`. They allow for easy application of a function like `log2()` or `max()` to all or a selection of columns in one go.
 
 _As always, if you have any questions don't hesitate to [email me](https://saraharcos.github.io/contact.html)._
