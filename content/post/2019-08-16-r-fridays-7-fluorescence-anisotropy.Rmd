@@ -1,0 +1,190 @@
+---
+title: 'R fridays #7: Fluorescence Anisotropy'
+author: Sarah Arcos
+date: '2019-08-16'
+slug: r-fridays-7-fluorescence-anisotropy
+categories: []
+tags:
+  - kinetics
+  - fluorescence anisotropy
+  - baseR
+  - functions
+---
+
+# Examining enzyme binding kinetics with fluorescence anisotropy
+
+Todays data and code were generously provided by [Andrew Morris](https://lab.vanderbilt.edu/ren-lab/person/andrew-morris/) of the Ren lab. [Fluorescence anisotropy](https://en.wikipedia.org/wiki/Fluorescence_anisotropy) is a technique to measure the binding of a fluorescent molecule to a protein of interest. If the fluorescent molecule is bound to the protein, it should have less freedom of movement in solution, resulting in more polarized light. This allows for estimation of binding kinetics.
+
+## The data 
+
+Andrew used fluorescence anisotropy to measure binding of a mutant protein in different buffer conditions. He compared binding of the wild-type protein (in what buffer?) to binding of the mutant protein in 50mM NaCl in tris buffer, 150mM NaCl in tris buffer, and 150mM NaCl in HEPES buffer.
+
+## Loading in the data
+
+Andrew read in his data using `read_tsv()` from the tidyverse package:
+```{r}
+library(tidyverse)
+
+nacl50_tris <- read_tsv("../../data/50NaCl_Tris.txt")
+nacl150_tris <- read_tsv("../../data/150NaCl_Tris.txt")
+nacl150_hepes <- read_tsv("../../data/150NaCl_HEPES.txt")
+wt <- read_tsv("../../data/WT.txt")
+```
+
+There are two variables in the data. "ani" refers to the anisotropy value, which has already been baseline-corrected. "NP" refers to the concentration of the titrant (fluorescent molecule) in nanomolar. 
+
+## Modeling independent binding
+
+Andrew first tried modeling a 1 to 1 independent binding interaction between his ligand and protein by providing his data and the [Michaelis-Menten](https://en.wikipedia.org/wiki/Michaelis–Menten_kinetics) equation to the [`nls()`](https://www.rdocumentation.org/packages/stats/versions/3.6.1/topics/nls) function in R. The `nls()` function will estimate parameters for a model given starting values and an equation for the model. There is also a specific function for estimating Michaelis-Menten parameters called `SSmicmen()`, but the equation is easy enough to write out.
+
+The `nls()` function uses non-linear least squares regression to approximate a non-linear model by using linear models, and by iterating to successively improve estimation of the model parameters (see the wikipedia page [here](https://en.wikipedia.org/wiki/Non-linear_least_squares) for a more detailed explanation).
+
+Let's check out the arguments needed for `nls()` by looking at the help page.
+```{r, eval = FALSE}
+?nls
+```
+
+The first argument is the equation for the model, in our case the Michaelis-Menten equation: $$V_0 = V_{max}\dfrac{[Substrate]}{[Substrate] + K_M}$$ where $V_0$ is the initial velocity of the reaction, $V_{max}$ is the maximum velocity of the reaction, and $K_M$ is the Michaelis-Menten constant.
+
+The second argument is the data. The "ani" column in the data provides the $V_0$ values for the equation, and the "NP" column is the Substrate concentration ($[Substrate]$). 
+
+The third argument is the initial values that the `nls()` function will use to estimate the remaining variables in the equation ($K_{M}$ and $V_{max}$). Our initial value for $K_M$ will be half of the maximum $[Substrate]$, and the initial value for $V_{max}$ (the anisotropy saturation value) will be the maximum of $V_0$.
+
+If the model has trouble converging, this indicates that our estimation of the apparent $K_M$ may have been really off. In that case, we could plot the data to make a better guess about the true $K_M$ to use as the initial value for `nls()`. 
+
+```{r}
+model.nls <- nls(ani ~ Vm * NP/(K+NP), 
+                 data = wt, 
+                 start = list(K = max(wt$NP)/2, Vm = max(wt$ani)))
+
+summary(model.nls)
+```
+
+Andrew then used base R to plot his data and model
+```{r}
+plot(wt)
+lines(wt$NP, predict(model.nls), col = "red")
+```
+
+Andrew noticed that when his data is plotted on a log-scale there is a very sharp inflexion, which indicates that it likely does not fit a 1 to 1 independent binding model:
+
+```{r}
+plot(log10(wt$NP), wt$ani)
+```
+
+So his next step was to try to fit the [Hill equation](https://en.wikipedia.org/wiki/Hill_equation_(biochemistry)), which assumes cooperative binding.
+
+## Modeling cooperative binding
+
+The Hill equation is given by: $$\theta = \dfrac{1}{(\dfrac{K_a}{[Substrate]})^n +1}$$
+where $\theta$ is the fraction of the protein that is bound by the ligand, $n$ is the hill coefficient, and $K_a$ is the association constant.
+
+To model his data using the Hill equation, Andrew first needed to normalize his data to maximum anisotropy (`max(ani)`) to treat anisotropy as the fractional occupancy of binding sites.
+
+```{r}
+wt$ani <- wt$ani/max(wt$ani)
+```
+
+Next Andrew fit the model assuming that $[Substrate]$ is approximately the same as $[unbound Substrate]$, and using initial values for $K_a$ and $n$ that he guessed from looking at his data.
+
+```{r}
+hill_model.nls <- nls(ani ~ 1/(((Ka/NP)^n)+1), 
+                      data = wt,
+                      start = list(Ka = 300, n=2))
+
+summary(hill_model.nls)
+```
+
+Then he plotted the data as before.
+
+```{r}
+plot(wt)
+lines(wt$NP, predict(hill_model.nls), col = "red")
+```
+
+The plot and the Hill coefficient indicate that Andrew's wild-type protein and ligand undergo cooperative binding. 
+
+## Comparing wild-type and mutant protein binding
+
+To compare the binding of the wild-type and mutant protein we could either copy and paste the code above for each buffer condition, or we could write a function to save time and decrease the possibility of copy-paste errors. 
+
+Here is a basic function called `hello_world`. Once `hello_world` is defined, it can be __called__ by typing `hello_world()`.
+
+```{r}
+hello_world <- function(){
+  print("This is a function")
+}
+
+hello_world()
+```
+
+Functions can also take arguments (think of functions you have already used, like `read_tsv()` and `print()`).
+
+```{r}
+hello_world <- function(text){
+  print(text)
+}
+
+hello_world("Biochemistry is cool")
+```
+
+To learn more about functions and how they are useful in organizing and simplifying code, see the [Functions chapter](https://r4ds.had.co.nz/functions.html) in R for Data Science by Hadley Wickham.
+
+Here is a function to model the Hill equation and plot the result. Notice that the code is very similar to what we did in the previous section, except that the name of the dataset has been replaced with the argument name, conveniently called "dataset".
+
+```{r}
+hill <- function(dataset){
+  #normalize the data to maximum anisotropy
+  dataset$ani <- dataset$ani/max(dataset$ani)
+  
+  #fit the model using nls
+  hill_model.nls <- nls(ani ~ 1/(((Ka/NP)^n)+1), 
+                      data = dataset,
+                      start = list(Ka = 300, n=2))
+
+  #print out a summary of the model
+  summary(hill_model.nls)
+  
+  #plot the data and fit
+  plot(dataset)
+  lines(dataset$NP, predict(hill_model.nls), col = "red")
+}
+```
+
+Now it is easy to call `hill()` on each dataset for the wt and mutant protein
+
+```{r}
+hill(wt)
+
+hill(nacl50_tris)
+
+hill(nacl150_tris)
+
+hill(nacl150_hepes)
+```
+
+From these plots, t looks like the mutant protein binds the ligand more strongly than the wild-type at 50mM NaCl, but that higher NaCl concentrations inhibit binding.
+
+## Replicating this analysis using ggplot
+
+ggplot2 has a layer called `geom_smooth()` that allows you to fit a model within your ggplot function. Here is an example using `geom_smooth()` to replicate the wt binding plot from above.
+
+```{r}
+ggplot(wt, aes(NP, ani)) + 
+  geom_point() +  
+  geom_smooth(method = "nls",
+               method.args=list(formula = y ~ 1/(((Ka/x)^n)+1),
+                                start = list(Ka = 300, n = 2)),
+               data = wt,
+               color = "steelblue",
+               se = FALSE)
+```
+
+# Wrap-up
+
+Today we discovered that Andrew's protein binds cooperatively to his ligand by modeling fluorescence anisotropy data using the Michaelis-Menten equation and the Hill equation. We also saw that the binding is inhibited at higher NaCl concentrations (150mM). We learned how to construct a function to simplify code, and we learned how to fit a model within a ggplot function.
+
+_As always, if you have any questions don't hesitate to [email me](https://saraharcos.github.io/contact.html)._
+
+
+
