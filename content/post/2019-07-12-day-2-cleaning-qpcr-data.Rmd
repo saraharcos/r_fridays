@@ -6,6 +6,7 @@ slug: day-2-cleaning-qpcr-data
 categories: []
 tags:
   - qPCR
+excerpt: "In this post we finished cleaning the RT-qPCR data from last week and started to calculate expression values from raw RT-qPCR Ct values."
 ---
 
 # Cleaning Data with the Tidyverse

@@ -6,6 +6,7 @@ slug: r-fridays-6
 categories: []
 tags:
   - RNA-seq
+excerpt: "Katie Rothamel demonstrates how to visualize FPKM values from RNA-seq using ggplot2."
 ---
 
 # Vizualizing gene expression changes from RNA-seq experiments

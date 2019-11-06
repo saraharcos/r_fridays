@@ -5,6 +5,7 @@ date: '2019-07-06'
 slug: day-1-reading-in-sam-s-qpcr-data
 categories: []
 tags: []
+excerpt: "This post covers reading in and cleaning RT-qPCR data using the tidyverse packages."
 ---
 
 

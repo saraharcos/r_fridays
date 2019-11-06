@@ -9,6 +9,7 @@ tags:
   - fluorescence anisotropy
   - baseR
   - functions
+excerpt: "In this post we will analyze fluorescence anisotropy data to determine protein-ligand binding kinetics."
 ---
 
 # Examining enzyme binding kinetics with fluorescence anisotropy
@@ -17,7 +18,7 @@ Today's data and code were generously provided by [Andrew Morris](https://lab.va
 
 ## The data 
 
-Andrew used fluorescence anisotropy to measure binding of a mutant protein in different buffer conditions. He compared binding of the wild-type protein to binding of the mutant protein in 50mM NaCl in tris buffer, 150mM NaCl in tris buffer, and 150mM NaCl in HEPES buffer.
+Andrew used fluorescence anisotropy to measure binding of a mutant protein in different buffer conditions. He compared binding of the wild-type protein in 150mM NaCl in tris buffer to binding of the mutant protein in 50mM NaCl in tris buffer, 150mM NaCl in tris buffer, and 150mM NaCl in HEPES buffer.
 
 ## Loading in the data
 

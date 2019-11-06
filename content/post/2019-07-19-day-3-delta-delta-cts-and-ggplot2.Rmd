@@ -6,6 +6,7 @@ slug: day-3-delta-delta-cts-and-ggplot2
 categories: []
 tags:
   - qPCR
+excerpt: "Today we finished calculating expression values for RT-qPCR data and learned how to visualize the data using ggplot2."
 ---
 
 ```{r, message = FALSE, echo = FALSE}
