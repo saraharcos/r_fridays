@@ -13,11 +13,11 @@ tags:
 
 # Examining enzyme binding kinetics with fluorescence anisotropy
 
-Todays data and code were generously provided by [Andrew Morris](https://lab.vanderbilt.edu/ren-lab/person/andrew-morris/) of the Ren lab. [Fluorescence anisotropy](https://en.wikipedia.org/wiki/Fluorescence_anisotropy) is a technique to measure the binding of a fluorescent molecule to a protein of interest. If the fluorescent molecule is bound to the protein, it should have less freedom of movement in solution, resulting in more polarized light. This allows for estimation of binding kinetics.
+Today's data and code were generously provided by [Andrew Morris](https://lab.vanderbilt.edu/ren-lab/person/andrew-morris/) of the Ren lab. [Fluorescence anisotropy](https://en.wikipedia.org/wiki/Fluorescence_anisotropy) is a technique to measure the binding of a fluorescent molecule to a protein of interest. If the fluorescent molecule is bound to the protein, it should have less freedom of movement in solution, resulting in the emitted light being more polarized. This allows for estimation of binding kinetics.
 
 ## The data 
 
-Andrew used fluorescence anisotropy to measure binding of a mutant protein in different buffer conditions. He compared binding of the wild-type protein (in what buffer?) to binding of the mutant protein in 50mM NaCl in tris buffer, 150mM NaCl in tris buffer, and 150mM NaCl in HEPES buffer.
+Andrew used fluorescence anisotropy to measure binding of a mutant protein in different buffer conditions. He compared binding of the wild-type protein to binding of the mutant protein in 50mM NaCl in tris buffer, 150mM NaCl in tris buffer, and 150mM NaCl in HEPES buffer.
 
 ## Loading in the data
 
