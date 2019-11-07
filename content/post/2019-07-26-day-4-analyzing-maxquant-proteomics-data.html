@@ -15,7 +15,7 @@ excerpt: "In this post we explore the distribution of raw MS1 intensities from L
 
 <div id="processing-proteomics-data-from-maxquant" class="section level1">
 <h1>Processing proteomics data from MaxQuant</h1>
-<p>The data we analyzed today comes from an LC-MS/MS analysis of the human RNA-binding proteins that directly interact with incoming RNA virus genomes. You can use <a href="https://saraharcos.github.io/projects.html">this link</a> to see more about how this data was generated <em>(manuscript under review)</em>.</p>
+<p>The data we analyzed today was simulated from an LC-MS/MS analysis of the human RNA-binding proteins that directly interact with incoming RNA virus genomes. You can use <a href="https://saraharcos.github.io/projects.html">this link</a> to see more about how this data was generated <em>(manuscript under review)</em>.</p>
 <p>We tested three different timepoints and 2 different treatment conditions (+ and - interferon/IFNB1). For these conditions, we have three biological replicates. We also have two control biological replicates for each condition. Here is a summary of all the samples:</p>
 <div id="experimental-conditions" class="section level3">
 <h3>Experimental Conditions</h3>
@@ -49,31 +49,10 @@ excerpt: "In this post we explore the distribution of raw MS1 intensities from L
 <p>First, let’s load the tidyverse package to our R session.</p>
 <pre class="r"><code>library(tidyverse)</code></pre>
 <p>Next, we can use the <code>read_tsv()</code> function to read the data from proteinGroups.txt into R</p>
-<pre class="r"><code>mq_full &lt;- read_tsv(&quot;../../data/proteinGroups.txt&quot;)</code></pre>
+<pre class="r"><code>mq_full &lt;- read_tsv(&quot;../../data/maxquant_072619.tsv&quot;)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
-##   .default = col_double(),
-##   `Protein IDs` = col_character(),
-##   `Majority protein IDs` = col_character(),
-##   `Peptide counts (all)` = col_character(),
-##   `Peptide counts (razor+unique)` = col_character(),
-##   `Peptide counts (unique)` = col_character(),
-##   `Fasta headers` = col_character(),
-##   `Sequence lengths` = col_character(),
-##   `Identification type 0hr_minus_rep1` = col_character(),
-##   `Identification type 0hr_minus_rep2` = col_character(),
-##   `Identification type 0hr_minus_rep3` = col_character(),
-##   `Identification type 0hr_plus_rep1` = col_character(),
-##   `Identification type 0hr_plus_rep2` = col_character(),
-##   `Identification type 0hr_plus_rep3` = col_character(),
-##   `Identification type 1hr_minus_rep1` = col_character(),
-##   `Identification type 1hr_minus_rep2` = col_character(),
-##   `Identification type 1hr_minus_rep3` = col_character(),
-##   `Identification type 1hr_plus_rep1` = col_character(),
-##   `Identification type 1hr_plus_rep2` = col_character(),
-##   `Identification type 1hr_plus_rep3` = col_character(),
-##   `Identification type 3hr_minus_rep1` = col_character()
-##   # ... with 20 more columns
+##   .default = col_double()
 ## )</code></pre>
 <pre><code>## See spec(...) for full column specifications.</code></pre>
 <p>Wow! That’s a lot of columns. Today we will only be plotting the MS1 ion intensity data, so let’s select only the Intensity columns and the column with the Protein IDs. We also want to specify that we want the raw Intensity columns, not the “LFQ” (Label-Free Quantification) Intensity columns.</p>

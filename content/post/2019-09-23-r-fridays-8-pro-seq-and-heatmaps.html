@@ -14,24 +14,27 @@ excerpt: "Monica demonstrates how to make heatmaps from PRO-seq data using the p
 
 <div id="looking-for-patterns-in-pro-seq-with-heatmaps" class="section level1">
 <h1>Looking for patterns in PRO-seq with heatmaps</h1>
-<p>Traditional RNA-seq measures RNA <strong>levels</strong> which are the result of both transcription and degradation of mRNA transcripts. <a href="https://lab.vanderbilt.edu/hiebert-lab/person/monica-bomber/">Monica Bomber</a> of the Hiebert Lab uses <a href="https://www.nature.com/articles/nprot.2016.086">PRO-seq</a> (precision nuclear run-on sequencing) to directly measure gene transcription rates. PRO-seq can measure transcription rates and identify transcription start sites at high-resolution througout the genome. Today, Monica showed us how to generate a heatmap to understand how transcription rates change over time in human lymphocytes.</p>
+<p>Traditional RNA-seq measures RNA <strong>levels</strong> which are the result of both transcription and degradation of mRNA transcripts. <a href="https://lab.vanderbilt.edu/hiebert-lab/person/monica-bomber/">Monica Bomber</a> of the Hiebert Lab uses <a href="https://www.nature.com/articles/nprot.2016.086">PRO-seq</a> (precision nuclear run-on sequencing) to directly measure gene transcription rates. PRO-seq can measure transcription rates and identify transcription start sites at high-resolution througout the genome. Today, Monica showed us how to generate a heatmap to understand how transcription rates change over time in human lymphocytes. Take a look at her approach and simulated data below.</p>
+<div id="reading-in-the-data" class="section level2">
+<h2>Reading in the data</h2>
 <p>Monica read in her data using <code>read_csv()</code> from the tidyverse.</p>
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ── Attaching packages ────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
 ## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
 ## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
 ## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
-<pre><code>## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ───────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>proseq &lt;- read_csv(&quot;../../data/081819_T2T6T24h_heatmapbinsgbupdn_T24hsiglistcom.csv&quot;)</code></pre>
+<pre class="r"><code>proseq &lt;- read_csv(&quot;../../data/monica_092319_noise.csv&quot;)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
-##   `Gene list` = col_character(),
+##   `Gene list` = col_double(),
 ##   `2 hour` = col_double(),
 ##   `6 hour` = col_double(),
 ##   `24 hour` = col_double()
 ## )</code></pre>
 <p>Her data contains the log2-transformed expression values for 3 different time-points: 2 hours, 6 hours, and 24 hours post stimulation.</p>
+</div>
 </div>

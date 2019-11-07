@@ -18,7 +18,7 @@ Today's data and code were generously provided by [Andrew Morris](https://lab.va
 
 ## The data 
 
-Andrew used fluorescence anisotropy to measure binding of a mutant protein in different buffer conditions. He compared binding of the wild-type protein in 150mM NaCl in tris buffer to binding of the mutant protein in 50mM NaCl in tris buffer, 150mM NaCl in tris buffer, and 150mM NaCl in HEPES buffer.
+Andrew used fluorescence anisotropy to measure binding of a mutant protein in different buffer conditions. He compared binding of the wild-type protein in 150mM NaCl in tris buffer to binding of the mutant protein in 50mM NaCl in tris buffer, 150mM NaCl in tris buffer, and 150mM NaCl in HEPES buffer. Today we will be working with data simulated from his experiment.
 
 ## Loading in the data
 
@@ -26,10 +26,10 @@ Andrew read in his data using `read_tsv()` from the tidyverse package:
 ```{r}
 library(tidyverse)
 
-nacl50_tris <- read_tsv("../../data/50NaCl_Tris.txt")
-nacl150_tris <- read_tsv("../../data/150NaCl_Tris.txt")
-nacl150_hepes <- read_tsv("../../data/150NaCl_HEPES.txt")
-wt <- read_tsv("../../data/WT.txt")
+nacl50_tris <- read_tsv("../../data/andrew_081619_50NaCl_Tris_noise.tsv")
+nacl150_tris <- read_tsv("../../data/andrew_081619_150NaCl_Tris_noise.tsv")
+nacl150_hepes <- read_tsv("../../data/andrew_081619_150NaCl_HEPES_noise.tsv")
+wt <- read_tsv("../../data/andrew_081619_WT_noise.tsv")
 ```
 
 There are two variables in the data. "ani" refers to the anisotropy value, which has already been baseline-corrected. "NP" refers to the concentration of the titrant (fluorescent molecule) in nanomolar. 

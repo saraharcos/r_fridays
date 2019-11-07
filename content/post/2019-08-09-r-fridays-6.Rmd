@@ -15,7 +15,7 @@ Hey everyone! Today we will be discussing how to import and visualize results fr
 
 
 ## The experiment
-The example dataset was simulated from a real experiment comparing RNA expression levels from two conditions (treated and untreated) in a human monocyte cell line (THP1). The cells were treated with cGAMP, an agonist of the STING signaling pathway, to stimulate an innate immune response. The treatment was also performed in a timecourse, with 0 hours representing the untreated condition, and timepoints at 0.5, 4, and 16 hours post-treatment with cGAMP. Each condition has three biological replicates.
+The example dataset was simulated from an experiment comparing RNA expression levels from two conditions (treated and untreated) in a human monocyte cell line (THP1). The cells were treated with cGAMP, an agonist of the STING signaling pathway, to stimulate an innate immune response. The treatment was also performed in a timecourse, with 0 hours representing the untreated condition, and timepoints at 0.5, 4, and 16 hours post-treatment with cGAMP. Each condition has three biological replicates.
 
 ## The data
 RNA-seq data undergoes a series of processing steps before it can be visualized in R:
@@ -35,10 +35,10 @@ Katie used the tidyverse packages to load and manipulate her data in R.
 library(tidyverse)
 ```
 
-Specifically, she used the `read_tsv()` function to read in her data and the `select()` function to select columns that she was interested in. She connected these two commands with a __pipe__ (`%>%`) to send the output of `read_tsv()` to the first argument of `select()`.
+Specifically, she used the `read_csv()` function to read in her data and the `select()` function to select columns that she was interested in. She connected these two commands with a __pipe__ (`%>%`) to send the output of `read_tsv()` to the first argument of `select()`.
 
 ```{r}
-rna_seq <- read_tsv("../../data/cds.fpkm_tracking") %>%
+rna_seq <- read_csv("../../data/katie_080919_noise.csv") %>%
   select(gene_short_name, THP1_0H_1_1_FPKM, THP1_0H_2_1_FPKM, THP1_0H_3_1_FPKM,
          THP1_0_5H_1_1_FPKM, THP1_0_5H_2_1_FPKM, THP1_0_5H_3_1_FPKM,
          THP1_4H_1_1_FPKM, THP1_4H_2_1_FPKM, THP1_4H_3_1_FPKM, 

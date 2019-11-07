@@ -16,7 +16,7 @@ excerpt: "Katie Rothamel demonstrates how to visualize FPKM values from RNA-seq 
 <p>Hey everyone! Today we will be discussing how to import and visualize results from RNA-seq experiments. The code below was generously provided by <a href="https://lab.vanderbilt.edu/ascano-lab/person/katherine-rothamel/">Katie Rothamel</a> of the Ascano lab.</p>
 <div id="the-experiment" class="section level2">
 <h2>The experiment</h2>
-<p>The example dataset was simulated from a real experiment comparing RNA expression levels from two conditions (treated and untreated) in a human monocyte cell line (THP1). The cells were treated with cGAMP, an agonist of the STING signaling pathway, to stimulate an innate immune response. The treatment was also performed in a timecourse, with 0 hours representing the untreated condition, and timepoints at 0.5, 4, and 16 hours post-treatment with cGAMP. Each condition has three biological replicates.</p>
+<p>The example dataset was simulated from an experiment comparing RNA expression levels from two conditions (treated and untreated) in a human monocyte cell line (THP1). The cells were treated with cGAMP, an agonist of the STING signaling pathway, to stimulate an innate immune response. The treatment was also performed in a timecourse, with 0 hours representing the untreated condition, and timepoints at 0.5, 4, and 16 hours post-treatment with cGAMP. Each condition has three biological replicates.</p>
 </div>
 <div id="the-data" class="section level2">
 <h2>The data</h2>
@@ -34,16 +34,16 @@ excerpt: "Katie Rothamel demonstrates how to visualize FPKM values from RNA-seq 
 <h2>Loading the data into R</h2>
 <p>Katie used the tidyverse packages to load and manipulate her data in R.</p>
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ── Attaching packages ────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
 ## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
 ## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
 ## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
-<pre><code>## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ───────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
-<p>Specifically, she used the <code>read_tsv()</code> function to read in her data and the <code>select()</code> function to select columns that she was interested in. She connected these two commands with a <strong>pipe</strong> (<code>%&gt;%</code>) to send the output of <code>read_tsv()</code> to the first argument of <code>select()</code>.</p>
-<pre class="r"><code>rna_seq &lt;- read_tsv(&quot;../../data/cds.fpkm_tracking&quot;) %&gt;%
+<p>Specifically, she used the <code>read_csv()</code> function to read in her data and the <code>select()</code> function to select columns that she was interested in. She connected these two commands with a <strong>pipe</strong> (<code>%&gt;%</code>) to send the output of <code>read_tsv()</code> to the first argument of <code>select()</code>.</p>
+<pre class="r"><code>rna_seq &lt;- read_csv(&quot;../../data/katie_080919_noise.csv&quot;) %&gt;%
   select(gene_short_name, THP1_0H_1_1_FPKM, THP1_0H_2_1_FPKM, THP1_0H_3_1_FPKM,
          THP1_0_5H_1_1_FPKM, THP1_0_5H_2_1_FPKM, THP1_0_5H_3_1_FPKM,
          THP1_4H_1_1_FPKM, THP1_4H_2_1_FPKM, THP1_4H_3_1_FPKM, 
@@ -51,13 +51,8 @@ excerpt: "Katie Rothamel demonstrates how to visualize FPKM values from RNA-seq 
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   .default = col_double(),
-##   tracking_id = col_character(),
 ##   class_code = col_character(),
 ##   nearest_ref_id = col_character(),
-##   gene_id = col_character(),
-##   gene_short_name = col_character(),
-##   tss_id = col_character(),
-##   locus = col_character(),
 ##   length = col_character(),
 ##   coverage = col_character(),
 ##   THP1_0H_1_1_status = col_character(),
@@ -70,8 +65,13 @@ excerpt: "Katie Rothamel demonstrates how to visualize FPKM values from RNA-seq 
 ##   THP1_0H_3_2_status = col_character(),
 ##   THP1_0_5H_2_2_status = col_character(),
 ##   THP1_16H_1_2_status = col_character(),
-##   THP1_16H_3_2_status = col_character()
-##   # ... with 13 more columns
+##   THP1_16H_3_2_status = col_character(),
+##   THP1_4H_2_2_status = col_character(),
+##   THP1_0H_2_1_status = col_character(),
+##   THP1_0_5H_1_1_status = col_character(),
+##   THP1_0_5H_3_1_status = col_character(),
+##   THP1_16H_2_1_status = col_character()
+##   # ... with 8 more columns
 ## )</code></pre>
 <pre><code>## See spec(...) for full column specifications.</code></pre>
 <p>The columns she selected are the gene name (<code>gene_short_name</code>) and the FPKM values for all of her timepoints and conditions. <code>THP1_0H_1_1_FPKM</code> refers to biological replicate 1 of the unstimulated condition, <code>THP1_0H_2_1_FPKM</code> referse to replicate 2, and so on.</p>

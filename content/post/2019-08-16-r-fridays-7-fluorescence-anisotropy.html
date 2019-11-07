@@ -19,39 +19,39 @@ excerpt: "In this post we will analyze fluorescence anisotropy data to determine
 <p>Today’s data and code were generously provided by <a href="https://lab.vanderbilt.edu/ren-lab/person/andrew-morris/">Andrew Morris</a> of the Ren lab. <a href="https://en.wikipedia.org/wiki/Fluorescence_anisotropy">Fluorescence anisotropy</a> is a technique to measure the binding of a fluorescent molecule to a protein of interest. If the fluorescent molecule is bound to the protein, it should have less freedom of movement in solution, resulting in the emitted light being more polarized. This allows for estimation of binding kinetics.</p>
 <div id="the-data" class="section level2">
 <h2>The data</h2>
-<p>Andrew used fluorescence anisotropy to measure binding of a mutant protein in different buffer conditions. He compared binding of the wild-type protein in 150mM NaCl in tris buffer to binding of the mutant protein in 50mM NaCl in tris buffer, 150mM NaCl in tris buffer, and 150mM NaCl in HEPES buffer.</p>
+<p>Andrew used fluorescence anisotropy to measure binding of a mutant protein in different buffer conditions. He compared binding of the wild-type protein in 150mM NaCl in tris buffer to binding of the mutant protein in 50mM NaCl in tris buffer, 150mM NaCl in tris buffer, and 150mM NaCl in HEPES buffer. Today we will be working with data simulated from his experiment.</p>
 </div>
 <div id="loading-in-the-data" class="section level2">
 <h2>Loading in the data</h2>
 <p>Andrew read in his data using <code>read_tsv()</code> from the tidyverse package:</p>
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ── Attaching packages ────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
 ## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
 ## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
 ## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
-<pre><code>## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ───────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>nacl50_tris &lt;- read_tsv(&quot;../../data/50NaCl_Tris.txt&quot;)</code></pre>
+<pre class="r"><code>nacl50_tris &lt;- read_tsv(&quot;../../data/andrew_081619_50NaCl_Tris_noise.tsv&quot;)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   NP = col_double(),
 ##   ani = col_double()
 ## )</code></pre>
-<pre class="r"><code>nacl150_tris &lt;- read_tsv(&quot;../../data/150NaCl_Tris.txt&quot;)</code></pre>
+<pre class="r"><code>nacl150_tris &lt;- read_tsv(&quot;../../data/andrew_081619_150NaCl_Tris_noise.tsv&quot;)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   NP = col_double(),
 ##   ani = col_double()
 ## )</code></pre>
-<pre class="r"><code>nacl150_hepes &lt;- read_tsv(&quot;../../data/150NaCl_HEPES.txt&quot;)</code></pre>
+<pre class="r"><code>nacl150_hepes &lt;- read_tsv(&quot;../../data/andrew_081619_150NaCl_HEPES_noise.tsv&quot;)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   NP = col_double(),
 ##   ani = col_double()
 ## )</code></pre>
-<pre class="r"><code>wt &lt;- read_tsv(&quot;../../data/WT.txt&quot;)</code></pre>
+<pre class="r"><code>wt &lt;- read_tsv(&quot;../../data/andrew_081619_WT_noise.tsv&quot;)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   NP = col_double(),
@@ -79,15 +79,15 @@ summary(model.nls)</code></pre>
 ## 
 ## Parameters:
 ##    Estimate Std. Error t value Pr(&gt;|t|)    
-## K    361.80      52.14   6.939 9.75e-07 ***
-## Vm   301.13      13.50  22.307 1.33e-15 ***
+## K    368.07      54.09   6.805 1.29e-06 ***
+## Vm   302.04      13.91  21.716 2.23e-15 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 18.95 on 20 degrees of freedom
+## Residual standard error: 19.39 on 20 degrees of freedom
 ## 
-## Number of iterations to convergence: 7 
-## Achieved convergence tolerance: 7.747e-06</code></pre>
+## Number of iterations to convergence: 8 
+## Achieved convergence tolerance: 6.868e-06</code></pre>
 <p>Andrew then used base R to plot his data and model</p>
 <pre class="r"><code>plot(wt)
 lines(wt$NP, predict(model.nls), col = &quot;red&quot;)</code></pre>
@@ -114,15 +114,15 @@ summary(hill_model.nls)</code></pre>
 ## 
 ## Parameters:
 ##     Estimate Std. Error t value Pr(&gt;|t|)    
-## Ka 246.67982    4.34017   56.84   &lt;2e-16 ***
-## n    1.82513    0.05166   35.33   &lt;2e-16 ***
+## Ka 249.15889    4.27001   58.35   &lt;2e-16 ***
+## n    1.83856    0.05118   35.92   &lt;2e-16 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.01809 on 20 degrees of freedom
+## Residual standard error: 0.01775 on 20 degrees of freedom
 ## 
 ## Number of iterations to convergence: 5 
-## Achieved convergence tolerance: 1.041e-06</code></pre>
+## Achieved convergence tolerance: 5.86e-07</code></pre>
 <p>Then he plotted the data as before.</p>
 <pre class="r"><code>plot(wt)
 lines(wt$NP, predict(hill_model.nls), col = &quot;red&quot;)</code></pre>

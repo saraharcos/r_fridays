@@ -13,7 +13,7 @@ excerpt: "In this post we explore the distribution of raw MS1 intensities from L
 
 # Processing proteomics data from MaxQuant
 
-The data we analyzed today comes from an LC-MS/MS analysis of the human RNA-binding proteins that directly interact with incoming RNA virus genomes. You can use [this link](https://saraharcos.github.io/projects.html) to see more about how this data was generated _(manuscript under review)_.
+The data we analyzed today was simulated from an LC-MS/MS analysis of the human RNA-binding proteins that directly interact with incoming RNA virus genomes. You can use [this link](https://saraharcos.github.io/projects.html) to see more about how this data was generated _(manuscript under review)_.
 
 We tested three different timepoints and 2 different treatment conditions (+ and - interferon/IFNB1). For these conditions, we have three biological replicates. We also have two control biological replicates for each condition. Here is a summary of all the samples:
 
@@ -50,7 +50,7 @@ library(tidyverse)
 
 Next, we can use the `read_tsv()` function to read the data from proteinGroups.txt into R
 ```{r}
-mq_full <- read_tsv("../../data/proteinGroups.txt")
+mq_full <- read_tsv("../../data/maxquant_072619.tsv")
 ```
 
 Wow! That's a lot of columns. Today we will only be plotting the MS1 ion intensity data, so let's select only the Intensity columns and the column with the Protein IDs. We also want to specify that we want the raw Intensity columns, not the "LFQ" (Label-Free Quantification) Intensity columns.
