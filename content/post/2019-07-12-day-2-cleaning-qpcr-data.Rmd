@@ -1,5 +1,5 @@
 ---
-title: 'Day 2: Cleaning qPCR Data'
+title: 'R fridays #2: Cleaning qPCR Data'
 author: Sarah Arcos
 date: '2019-07-12'
 slug: day-2-cleaning-qpcr-data

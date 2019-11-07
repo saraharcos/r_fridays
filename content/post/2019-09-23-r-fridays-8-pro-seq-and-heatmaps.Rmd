@@ -1,0 +1,30 @@
+---
+title: 'R fridays #8: PRO-seq and heatmaps'
+author: Sarah Arcos
+date: '2019-08-23'
+slug: r-fridays-8-pro-seq-and-heatmaps
+categories: []
+tags:
+  - PRO-ses
+  - RNA-seq
+excerpt: "Monica demonstrates how to make heatmaps from PRO-seq data using the pheatmap package."
+---
+
+# Looking for patterns in PRO-seq with heatmaps
+
+Traditional RNA-seq measures RNA __levels__ which are the result of both transcription and degradation of mRNA transcripts. [Monica Bomber](https://lab.vanderbilt.edu/hiebert-lab/person/monica-bomber/) of the Hiebert Lab uses [PRO-seq](https://www.nature.com/articles/nprot.2016.086) (precision nuclear run-on sequencing) to directly measure gene transcription rates. PRO-seq can measure transcription rates and identify transcription start sites at high-resolution througout the genome. Today, Monica showed us how to generate a heatmap to understand how transcription rates change over time in human lymphocytes.
+
+Monica read in her data using `read_csv()` from the tidyverse.
+
+```{r}
+library(tidyverse)
+
+proseq <- read_csv("../../data/081819_T2T6T24h_heatmapbinsgbupdn_T24hsiglistcom.csv")
+
+```
+
+Her data contains the log2-transformed expression values for 3 different time-points: 2 hours, 6 hours, and 24 hours post stimulation.
+
+
+
+

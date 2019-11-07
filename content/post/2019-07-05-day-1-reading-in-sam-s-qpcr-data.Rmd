@@ -1,5 +1,5 @@
 ---
-title: 'Day 1: Reading in Sam''s qPCR data'
+title: 'R fridays #1: Reading in Sam''s qPCR data'
 author: Sarah Arcos
 date: '2019-07-06'
 slug: day-1-reading-in-sam-s-qpcr-data
