@@ -3,7 +3,7 @@ baseurl = "https://r-fridays.rbind.io/"
 languageCode = "en-us"
 title = "R Fridays"
 theme = "tuftesque"
-googleAnalytics = ""
+googleAnalytics = "UA-151874168-1"
 disqusShortname = ""
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
