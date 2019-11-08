@@ -1,0 +1,18 @@
+---
+title: 'R fridays #9: ChIPseeker, Marimekko, and read_tsv()'
+author: Sarah Arcos
+date: '2019-08-30'
+slug: r-fridays-9-chipseeker-marimekko-and-read-tsv
+categories: []
+tags:
+  - ChIPseeker
+  - ggplot2
+  - dataviz
+excerpt: "Today we explored the amazing functionality of the ChIPseeker package, we talked about the handy Marimekko (mosaic) plot, and we discussed the benefits of `read_tsv()` versus `read.tsv()`"
+---
+
+# A lively discussion
+
+
+
+
