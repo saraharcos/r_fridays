@@ -32,7 +32,7 @@ nacl150_hepes <- read_tsv("../../data/andrew_081619_150NaCl_HEPES_noise.tsv")
 wt <- read_tsv("../../data/andrew_081619_WT_noise.tsv")
 ```
 
-There are two variables in the data. "ani" refers to the anisotropy value, which has already been baseline-corrected. "NP" refers to the concentration of the titrant (fluorescent molecule) in nanomolar. 
+There are two variables in the data. "ani" refers to the anisotropy value, which has already been baseline-corrected. "NP" refers to the concentration of the titrant in nanomolar. 
 
 ## Modeling independent binding
 
