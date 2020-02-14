@@ -33,14 +33,14 @@ excerpt: "In this post we finished cleaning the RT-qPCR data from last week and 
 <li>Load the tidyverse and readxl.</li>
 </ol>
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
-<pre><code>## ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
-## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
-## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
-## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre><code>## ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.2.1     ✓ purrr   0.3.3
+## ✓ tibble  2.1.3     ✓ dplyr   0.8.3
+## ✓ tidyr   1.0.0     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.4.0</code></pre>
+<pre><code>## ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
 <pre class="r"><code>library(readxl)</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li>Read in Sam’s data using the <code>read_xlsx</code> function:</li>
@@ -56,9 +56,9 @@ sams_data &lt;- read_xlsx(&quot;../../data/R-Friday_SL_qPCR_009.xlsx&quot;, shee
 <pre class="r"><code>glimpse(sams_data_meanCT)</code></pre>
 <pre><code>## Observations: 36
 ## Variables: 3
-## $ `Sample Name` &lt;chr&gt; &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+2&quot;, &quot;+2&quot;, &quot;+…
-## $ `Target Name` &lt;chr&gt; &quot;Tubulin&quot;, &quot;Tubulin&quot;, &quot;IFIT&quot;, &quot;IFIT&quot;, &quot;IFN&quot;, &quot;IFN&quot;…
-## $ `CT Mean`     &lt;chr&gt; &quot;29.990015029907227&quot;, &quot;29.990015029907227&quot;, &quot;29.83…</code></pre>
+## $ `Sample Name` &lt;chr&gt; &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+2&quot;, &quot;+2&quot;, &quot;+2&quot;, &quot;…
+## $ `Target Name` &lt;chr&gt; &quot;Tubulin&quot;, &quot;Tubulin&quot;, &quot;IFIT&quot;, &quot;IFIT&quot;, &quot;IFN&quot;, &quot;IFN&quot;, &quot;Tu…
+## $ `CT Mean`     &lt;chr&gt; &quot;29.990015029907227&quot;, &quot;29.990015029907227&quot;, &quot;29.8365058…</code></pre>
 <p>From the output of <code>glimpse()</code> we see that the <code>select()</code> function correctly selected the three columns of Sample Name, Target Name, and CT Mean.</p>
 <p>One of the most useful features of RStudio is the ability to <code>view()</code> data that is loaded in to R. You can either call <code>view(table_name)</code> in the console, or you can click the name of the table in the “Environment” pane on the top right of the RStudio window.</p>
 <p>If you scroll to the last few rows of Sam’s data, you will see that there are two entries that stand out: the Sample Names “007” and <code>NA</code>. From Sam’s description of the data in the original excel file, we know that she used “007” to reference old samples from Katie Rothamel, and the <code>NA</code> samples are the no-template control (NTC).</p>
@@ -123,9 +123,9 @@ sams_data &lt;- read_xlsx(&quot;../../data/R-Friday_SL_qPCR_009.xlsx&quot;, shee
 <pre class="r"><code>glimpse(sams_data_meanCT)</code></pre>
 <pre><code>## Observations: 12
 ## Variables: 3
-## $ `Sample Name` &lt;chr&gt; &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+2&quot;, &quot;+2&quot;, &quot;+2&quot;, &quot;-1&quot;, &quot;-1&quot;, &quot;-…
-## $ `Target Name` &lt;chr&gt; &quot;Tubulin&quot;, &quot;IFIT&quot;, &quot;IFN&quot;, &quot;Tubulin&quot;, &quot;IFIT&quot;, &quot;IFN&quot;…
-## $ `CT Mean`     &lt;dbl&gt; 29.99002, 29.83651, 35.85084, 26.42561, 26.34094, …</code></pre>
+## $ `Sample Name` &lt;chr&gt; &quot;+1&quot;, &quot;+1&quot;, &quot;+1&quot;, &quot;+2&quot;, &quot;+2&quot;, &quot;+2&quot;, &quot;-1&quot;, &quot;-1&quot;, &quot;-1&quot;, &quot;…
+## $ `Target Name` &lt;chr&gt; &quot;Tubulin&quot;, &quot;IFIT&quot;, &quot;IFN&quot;, &quot;Tubulin&quot;, &quot;IFIT&quot;, &quot;IFN&quot;, &quot;Tu…
+## $ `CT Mean`     &lt;dbl&gt; 29.99002, 29.83651, 35.85084, 26.42561, 26.34094, 35.17…</code></pre>
 <p>There are three columns, with Sample Name, Target Name and CT Mean. To calculate the <span class="math inline">\(\Delta\)</span>Ct values, we need to subtract the CT Mean of the <strong>housekeeping</strong> gene (Tubulin) from the CT Means of the experimental genes (IFN and IFIT). In excel, a straightforward way to do this is to pull out the Tubulin values into a new column, and then subtract across. As it turns out, we can also do this in R!</p>
 <p>To “isolate” the Tubulin values, we will first <strong>spread</strong> the Target Name column into three new columns called Tubulin, IFIT and IFN using the <code>spread()</code> function. Then we will <strong>gather</strong> the IFIT and IFN columns back in to a single column using the <code>gather()</code> function, leaving the Tubulin column out.</p>
 <p>Spread takes three arguments, the name of the table, and the names of a <strong>key</strong> and <strong>value</strong> column. The unique values in the <strong>key</strong> column become new column names, and the data in the <strong>value</strong> column gets rearranged into these new columns. For our data, the <strong>key</strong> column is Target Name and the <strong>value</strong> column is CT Mean. We can build on to our previous pipe:</p>

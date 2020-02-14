@@ -1,0 +1,103 @@
+---
+title: rstudio:conf 2020 recap
+author: Sarah Arcos
+date: '2020-02-07'
+slug: rstudio-conf-2020-recap
+categories:
+  - Conference
+tags: []
+excerpt: "Get a re-cap of what I learned at the workshops and presentations at rstudio:conf 2020 in San Francisco, CA."
+---
+
+
+
+<div id="rstudioconf-2020" class="section level1">
+<h1>rstudio:conf 2020</h1>
+<p>rstudio:conf took place January 27th through January 30th, 2020 in San Francisco, CA. I was fortunate to be able to attend a workshop at the conference titled “What They Forgot to Teach You About R,” taught by Jenny Bryan, Kara Woo, and Jim Hester. Read on for a re-cap of what I learned at the workshop and interesting talks from the conference.</p>
+<div id="resources" class="section level2">
+<h2>Resources</h2>
+<p>All slides and practice sets from the workshop (abbreviated WTF) are <a href="https://rstudio-conf-2020.github.io/what-they-forgot/">available online here</a></p>
+<p>Helpful paper about <em>achievable</em> best practices in scientific computing: <a href="http://swcarpentry.github.io/good-enough-practices-in-scientific-computing/">Good Enough Practices in Scientific Computing</a></p>
+<p>More about getting started with git: <a href="https://happygitwithr.com">Happy Git with R</a></p>
+<p>Purrr <a href="https://jennybc.github.io/purrr-tutorial/">tutorial</a></p>
+</div>
+<div id="workshop-recap" class="section level2">
+<h2>Workshop recap</h2>
+<p>The two-day WTF workshop was incredibly informative. Topics covered included organizational tips, debugging, Git/Github, package versions, reproducible environments, and Purrr. Below I will highlight some of the best practices covered in the workshop.</p>
+<div id="organizational-tips-file-paths-dates-file-organization" class="section level3">
+<h3>Organizational tips (file paths, dates, file organization)</h3>
+<p>Tips are taken from the slides for the first session of the workshop: <a href="https://rstudio-conf-2020.github.io/what-they-forgot/materials/project-oriented-workflow.pdf">project-oriented workflows</a></p>
+<ul>
+<li>File paths in your scripts should be <strong>relative to a stable base</strong> and should use <strong>file system functions</strong> (not <code>paste()</code> or <code>strsplit</code>()).</li>
+<li>Packages that can help with defining paths are <code>here</code> and <code>fs</code>. Below is an example of how to use <code>here()</code> and why it is useful:</li>
+</ul>
+<p>When you load <code>here</code>, the package notes what directory your project is in, and reports that directory to your console:</p>
+<pre class="r"><code>library(here)</code></pre>
+<pre><code>## here() starts at /Users/saraharcos/Desktop/r_fridays</code></pre>
+<p>To build a path to a file using here, separate each directory and subdirectory in the path into individual strings, starting with the project directory. Two of the calls to <code>read_tsv()</code> below do the exact same thing, while the call using a relative path breaks</p>
+<pre class="r"><code>library(readr)
+
+#Using an absolute path
+read_tsv(&quot;/Users/saraharcos/Desktop/r_fridays/data/andrew_081619_WT_noise.tsv&quot;)</code></pre>
+<pre><code>## # A tibble: 22 x 2
+##       NP   ani
+##    &lt;dbl&gt; &lt;dbl&gt;
+##  1 3995.   256
+##  2 3000.   254
+##  3 2251.   250
+##  4 1690.   249
+##  5 1265.   243
+##  6  952.   224
+##  7  710.   225
+##  8  535.   212
+##  9  396.   172
+## 10  304.   157
+## # … with 12 more rows</code></pre>
+<pre class="r"><code>#Using a relative path
+read_tsv(&quot;data/andrew_081619_WT_noise.tsv&quot;)</code></pre>
+<pre><code>## Error: &#39;data/andrew_081619_WT_noise.tsv&#39; does not exist in current working directory (&#39;/Users/saraharcos/Desktop/r_fridays/content/post&#39;).</code></pre>
+<pre class="r"><code>#Using here
+read_tsv(here(&quot;data&quot;, &quot;andrew_081619_WT_noise.tsv&quot;))</code></pre>
+<pre><code>## # A tibble: 22 x 2
+##       NP   ani
+##    &lt;dbl&gt; &lt;dbl&gt;
+##  1 3995.   256
+##  2 3000.   254
+##  3 2251.   250
+##  4 1690.   249
+##  5 1265.   243
+##  6  952.   224
+##  7  710.   225
+##  8  535.   212
+##  9  396.   172
+## 10  304.   157
+## # … with 12 more rows</code></pre>
+<p>Why did the relative path break? It turns out that this Rmarkdown document is actually located in a subfolder of this R project. So the relative path to the “data” folder containing andrew’s data is actually <code>../../data/andrew_081619_WT_noise.tsv</code>. But the <code>here()</code> function works because it is based in the main project directory, so as long as you are within the same <em>project</em>, then the path to any file in any subdirectory is always the same using <code>here()</code>, even if your script is located within a subdirectory.</p>
+<p>A second reason to use <code>here()</code> is because the absolute path can be different on different operating systems. For example, if you construct your absolute paths using the shortcut shown below, then your script may work on your computer, but it won’t necessarily work on a Windows machine.</p>
+<pre class="r"><code>read_tsv(&quot;~/Desktop/r_fridays/data/andrew_081619_WT_noise.tsv&quot;)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   NP = col_double(),
+##   ani = col_double()
+## )</code></pre>
+<pre><code>## # A tibble: 22 x 2
+##       NP   ani
+##    &lt;dbl&gt; &lt;dbl&gt;
+##  1 3995.   256
+##  2 3000.   254
+##  3 2251.   250
+##  4 1690.   249
+##  5 1265.   243
+##  6  952.   224
+##  7  710.   225
+##  8  535.   212
+##  9  396.   172
+## 10  304.   157
+## # … with 12 more rows</code></pre>
+<ul>
+<li><p>Dates: There is an international standard for reporting dates called ISO 8601. The format for ISO 8601 is YYYY-MM-DD. It is good to use this system when recording dates in file names so that they can be understood by people in all nations. <img src="https://raw.githubusercontent.com/saraharcos/r_fridays/master/figures/jenny_iso.png" /></p></li>
+<li></li>
+</ul>
+</div>
+</div>
+</div>
